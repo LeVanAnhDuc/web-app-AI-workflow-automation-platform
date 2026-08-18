@@ -1,4 +1,4 @@
-.PHONY: help db-up db-down migrate api worker web test test-go test-web build tidy fmt
+.PHONY: help db-up db-down migrate api worker web test test-go test-web test-e2e build tidy fmt
 
 help:
 	@echo "db-up      start Postgres"
@@ -7,6 +7,7 @@ help:
 	@echo "worker     run the execution worker"
 	@echo "web        run Next.js on :3000"
 	@echo "test       run every test suite"
+	@echo "test-e2e   drive the running app in a browser"
 
 db-up:
 	docker compose up -d postgres
@@ -38,6 +39,10 @@ test-go:
 
 test-web:
 	cd web && npm run typecheck && npm test
+
+# Needs Postgres, the API and the worker already running.
+test-e2e:
+	cd web && npm run test:e2e
 
 tidy:
 	go mod tidy

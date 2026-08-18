@@ -1,0 +1,29 @@
+# Go
+/bin/
+*.exe
+*.test
+*.out
+
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+.turbo/
+playwright-report/
+test-results/
+
+# Env
+.env
+.env.local
+.env*.local
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Design working files keep their sources; the seeded canvas is a build output
+design/**/*.html
+!design/**/*.dc.html

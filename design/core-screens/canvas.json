@@ -1,0 +1,48 @@
+{
+  "artboards": [
+    { "file": "Login.dc.html", "title": "1 · Login", "x": 0, "y": 0, "w": 1440, "h": 900 },
+    { "file": "WorkflowList.dc.html", "title": "2 · Workflow list", "x": 1560, "y": 0, "w": 1440, "h": 900 },
+    { "file": "Main.dc.html", "title": "3 · Workflow editor", "x": 3120, "y": 0, "w": 1440, "h": 900 },
+    { "file": "NodePicker.dc.html", "title": "4 · Node picker", "x": 0, "y": 1300, "w": 1440, "h": 900 },
+    { "file": "ExecutionList.dc.html", "title": "5 · Execution list", "x": 1560, "y": 1300, "w": 1440, "h": 900 },
+    { "file": "ExecutionDetail.dc.html", "title": "6 · Execution detail", "x": 3120, "y": 1300, "w": 1440, "h": 900 }
+  ],
+  "annotations": [
+    {
+      "id": "brief",
+      "x": 0,
+      "y": -320,
+      "w": 460,
+      "text": "Flowgrid — Giai đoạn 1 (Core)\n\n6 màn hình theo hướng Studio dark đã chọn. Tất cả ở 1440×900.\n\nPhạm vi cố ý giới hạn ở GĐ1: chỉ email/password (chưa SSO), chỉ node Trigger/HTTP/Code/IF/Set/Merge. Node LLM và AI Agent xuất hiện ở sidebar dạng mờ với nhãn P2 để thấy trước chỗ chúng sẽ nằm.\n\n\"Flowgrid\" vẫn là tên tạm — chưa chốt."
+    },
+    {
+      "id": "nav-model",
+      "x": 1560,
+      "y": -320,
+      "w": 420,
+      "text": "Mô hình điều hướng\n\nKhông có rail dọc cố định. Các màn danh sách dùng topbar với 3 tab: Workflows · Executions · Credentials (tab Credentials có sẵn nhưng chỉ hoạt động ở GĐ3).\n\nMàn Editor thay 3 tab đó bằng breadcrumb — vì editor cần toàn bộ chiều ngang cho canvas, và người dùng đang ở trong một workflow cụ thể chứ không lướt giữa các mục."
+    },
+    {
+      "id": "editor-note",
+      "x": 3120,
+      "y": -320,
+      "w": 420,
+      "text": "Editor — điểm cần chú ý\n\nDrawer phải KHÔNG phải form viết tay cho từng node. Nó render từ descriptor mà Go trả về ở GET /node-types (kiểu field, label, default, điều kiện hiện/ẩn). Thêm node mới = 1 file Go, không sửa frontend.\n\nChip \"expression\" và dòng preview mờ bên dưới URL là cách người dùng thấy {{ }} đã resolve thành gì — thứ hay gây bực nhất khi debug.\n\nPanel log dưới là dữ liệu thật từ bảng node_executions, cập nhật qua SSE."
+    },
+    {
+      "id": "picker-note",
+      "x": 0,
+      "y": 1010,
+      "w": 420,
+      "text": "Node picker — bàn phím là chính\n\nMở bằng Tab hoặc click \"+\" trên canvas. Gõ để lọc, ↑↓ chọn, ↵ thêm vào canvas, Esc đóng — không cần chuột.\n\nKết quả nhóm theo category và hiện mô tả một dòng của node (cũng lấy từ descriptor). Node đã dùng làm trigger được đánh dấu \"in use\" thay vì bị ẩn, để người dùng hiểu vì sao không thêm được nữa."
+    },
+    {
+      "id": "detail-note",
+      "x": 3120,
+      "y": 1010,
+      "w": 420,
+      "text": "Execution detail — màn quan trọng nhất khi có sự cố\n\nGraph phía trên là replay read-only của ĐÚNG version đã chạy (v12), tô màu theo trạng thái từng node; node lỗi được viền đỏ, node không tới lượt để nét gãy.\n\nDưới chia hai pane Input | Output(Error) — đúng cách người ta debug: so input đưa vào với cái nhận về. Với node lỗi, pane phải thành Error kèm timeline retry, cho thấy 3 lần thử đều 429.\n\n\"Retry from failed node\" chạy được vì engine đã persist output từng node — đây là lợi ích trực tiếp của hướng A trong design."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

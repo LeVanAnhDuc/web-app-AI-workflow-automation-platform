@@ -1,0 +1,271 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Azeret+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif; }
+    a { color: #2a5bd7; } a:hover { color: #1d43a3; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #f2efe6; color: #14161c; font-size: 13px; overflow: hidden;">
+
+  <div style="height: 52px; flex-shrink: 0; display: flex; align-items: center; gap: 15px; padding: 0 16px; background: #14161c; color: #e9e6dd;">
+    <div style="display: flex; align-items: center; gap: 9px;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#f2efe6" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><path d="M10 6.5h4a3.5 3.5 0 0 1 3.5 3.5v4"></path></svg>
+      <span style="font-size: 15px; font-weight: 700; letter-spacing: -0.02em;">Flowgrid</span>
+    </div>
+    <div style="width: 1px; height: 18px; background: #33363f;"></div>
+    <div style="display: flex; align-items: center; gap: 8px; color: #9a9dab; font-size: 12.5px;">
+      <span>Workflows</span>
+      <span style="color: #565a68;">/</span>
+      <span style="color: #f2efe6; font-weight: 600;">Lead enrichment</span>
+      <span style="font-family: 'Azeret Mono', monospace; font-size: 10px; padding: 2px 6px; background: #23262f; color: #9a9dab;">v7</span>
+    </div>
+    <div style="flex-grow: 1;"></div>
+    <div style="display: flex; align-items: center; gap: 8px; color: #9a9dab; font-size: 12.5px;">
+      <span>Inactive</span>
+      <div style="width: 32px; height: 17px; border-radius: 999px; background: #33363f; display: flex; align-items: center; padding: 0 2px;"><div style="width: 13px; height: 13px; border-radius: 999px; background: #6d7181;"></div></div>
+    </div>
+    <div style="padding: 7px 14px; border: 1px solid #3d4049; color: #e9e6dd; font-size: 12.5px; font-weight: 500;">Save</div>
+    <div style="display: flex; align-items: center; gap: 7px; padding: 7px 15px; background: #2a5bd7; color: #ffffff; font-size: 12.5px; font-weight: 600;">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="#ffffff"><path d="M6 3l14 9-14 9z"></path></svg>
+      <span>Run</span>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0;">
+
+    <div style="width: 224px; flex-shrink: 0; background: #1a1d24; color: #e9e6dd; display: flex; flex-direction: column;">
+      <div style="padding: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #14161c; border: 1px solid #2c2f38;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6d7181" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+          <span style="color: #6d7181; font-size: 12.5px;">Search nodes</span>
+        </div>
+      </div>
+
+      <div style="padding: 4px 14px 7px; font-family: 'Azeret Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; color: #6d7181;">TRIGGERS</div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: #c3c0b8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9a9dab" stroke-width="1.6"><path d="M13 2L5 13h6l-2 9 8-11h-6z"></path></svg><span style="font-size: 12.5px;">Manual</span></div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: #14161c; border-left: 3px solid #2a5bd7;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7ea0f5" stroke-width="1.6"><path d="M12 3v6M12 21a4 4 0 0 0 4-4M7 12a5 5 0 0 1 10 0"></path><circle cx="12" cy="16" r="2"></circle></svg><span style="font-size: 12.5px; color: #f2efe6; font-weight: 600;">Webhook</span></div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: #c3c0b8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9a9dab" stroke-width="1.6"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span style="font-size: 12.5px;">Schedule</span></div>
+
+      <div style="padding: 14px 14px 7px; font-family: 'Azeret Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; color: #6d7181;">CORE</div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: #c3c0b8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9a9dab" stroke-width="1.6"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"></path></svg><span style="font-size: 12.5px;">HTTP Request</span></div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: #c3c0b8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9a9dab" stroke-width="1.6"><path d="M9 6l-5 6 5 6M15 6l5 6-5 6"></path></svg><span style="font-size: 12.5px;">Code</span></div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: #c3c0b8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9a9dab" stroke-width="1.6"><path d="M4 6h6l4 6h6M14 12l-4 6H4M20 12l-3-3M20 12l-3 3"></path></svg><span style="font-size: 12.5px;">IF</span></div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: #c3c0b8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9a9dab" stroke-width="1.6"><rect x="4" y="5" width="16" height="14"></rect><path d="M4 10h16M9 10v9"></path></svg><span style="font-size: 12.5px;">Set</span></div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: #c3c0b8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9a9dab" stroke-width="1.6"><path d="M5 5v4a4 4 0 0 0 4 4h10M5 19v-4a4 4 0 0 1 4-4M16 9l3 4-3 4"></path></svg><span style="font-size: 12.5px;">Merge</span></div>
+
+      <div style="padding: 14px 14px 7px; font-family: 'Azeret Mono', monospace; font-size: 9.5px; letter-spacing: 0.12em; color: #6d7181;">AI</div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: #565a68;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#565a68" stroke-width="1.6"><path d="M12 3l2.2 5.3L20 10l-5.8 1.7L12 17l-2.2-5.3L4 10l5.8-1.7z"></path></svg><span style="font-size: 12.5px;">LLM</span><span style="margin-left: auto; font-family: 'Azeret Mono', monospace; font-size: 9px; border: 1px solid #2c2f38; padding: 1px 5px;">P2</span></div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 14px; color: #565a68;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#565a68" stroke-width="1.6"><rect x="4" y="8" width="16" height="12"></rect><path d="M12 4v4M9 14h.01M15 14h.01"></path></svg><span style="font-size: 12.5px;">AI Agent</span><span style="margin-left: auto; font-family: 'Azeret Mono', monospace; font-size: 9px; border: 1px solid #2c2f38; padding: 1px 5px;">P2</span></div>
+    </div>
+
+    <div style="flex-grow: 1; position: relative; overflow: hidden; background-color: #f2efe6; background-image: linear-gradient(rgba(42,91,215,0.09) 1px, transparent 1px), linear-gradient(90deg, rgba(42,91,215,0.09) 1px, transparent 1px), linear-gradient(rgba(42,91,215,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(42,91,215,0.05) 1px, transparent 1px); background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;">
+
+      <svg width="868" height="636" viewBox="0 0 868 636" style="position: absolute; left: 0; top: 0;">
+        <path d="M202 160 H252" stroke="#2a5bd7" stroke-width="1.6" fill="none"></path>
+        <path d="M424 160 H474" stroke="#2a5bd7" stroke-width="1.6" fill="none"></path>
+        <path d="M646 150 H670 V104 H694" stroke="#2a5bd7" stroke-width="1.6" fill="none"></path>
+        <path d="M646 172 H670 V256 H694" stroke="#b3ada0" stroke-width="1.6" fill="none" stroke-dasharray="4 5"></path>
+        <circle cx="670" cy="104" r="2.6" fill="#2a5bd7"></circle>
+        <text x="676" y="98" fill="#2a5bd7" font-family="'Azeret Mono', monospace" font-size="9">true</text>
+        <text x="676" y="250" fill="#8d887d" font-family="'Azeret Mono', monospace" font-size="9">false</text>
+      </svg>
+
+      <div style="position: absolute; left: 30px; top: 130px; width: 172px; background: #fffdf8; border: 1.5px solid #14161c; box-shadow: 3px 3px 0 rgba(20,22,28,0.12);">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 11px;">
+          <div style="width: 28px; height: 28px; background: #eef2fd; border: 1px solid #14161c; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a5bd7" stroke-width="1.6"><path d="M12 3v6M12 21a4 4 0 0 0 4-4M7 12a5 5 0 0 1 10 0"></path><circle cx="12" cy="16" r="2"></circle></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 1px;">
+            <div style="font-size: 12.5px; font-weight: 600;">New lead</div>
+            <div style="font-family: 'Azeret Mono', monospace; font-size: 9.5px; color: #7c7870;">trigger.webhook</div>
+          </div>
+        </div>
+      </div>
+      <div style="position: absolute; left: 197px; top: 155px; width: 10px; height: 10px; background: #2a5bd7; border: 1.5px solid #14161c;"></div>
+
+      <div style="position: absolute; left: 252px; top: 130px; width: 172px; background: #fffdf8; border: 2px solid #2a5bd7; box-shadow: 3px 3px 0 rgba(42,91,215,0.2);">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 11px;">
+          <div style="width: 28px; height: 28px; background: #f2efe6; border: 1px solid #14161c; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#14161c" stroke-width="1.6"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"></path></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 1px;">
+            <div style="font-size: 12.5px; font-weight: 600;">Fetch profile</div>
+            <div style="font-family: 'Azeret Mono', monospace; font-size: 9.5px; color: #7c7870;">http.request</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 5px 11px; border-top: 1px solid #ddd8cc; font-family: 'Azeret Mono', monospace; font-size: 9.5px; color: #7c7870;">
+          <span>12 items</span><span>318ms</span>
+        </div>
+      </div>
+      <div style="position: absolute; left: 247px; top: 155px; width: 10px; height: 10px; background: #fffdf8; border: 1.5px solid #14161c;"></div>
+      <div style="position: absolute; left: 419px; top: 155px; width: 10px; height: 10px; background: #2a5bd7; border: 1.5px solid #14161c;"></div>
+
+      <div style="position: absolute; left: 474px; top: 130px; width: 172px; background: #fffdf8; border: 1.5px solid #14161c; box-shadow: 3px 3px 0 rgba(20,22,28,0.12);">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 11px;">
+          <div style="width: 28px; height: 28px; background: #f2efe6; border: 1px solid #14161c; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#14161c" stroke-width="1.6"><path d="M4 6h6l4 6h6M14 12l-4 6H4M20 12l-3-3M20 12l-3 3"></path></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 1px;">
+            <div style="font-size: 12.5px; font-weight: 600;">Has company?</div>
+            <div style="font-family: 'Azeret Mono', monospace; font-size: 9.5px; color: #7c7870;">if</div>
+          </div>
+        </div>
+      </div>
+      <div style="position: absolute; left: 469px; top: 155px; width: 10px; height: 10px; background: #fffdf8; border: 1.5px solid #14161c;"></div>
+      <div style="position: absolute; left: 641px; top: 145px; width: 10px; height: 10px; background: #2a5bd7; border: 1.5px solid #14161c;"></div>
+      <div style="position: absolute; left: 641px; top: 167px; width: 10px; height: 10px; background: #f2efe6; border: 1.5px solid #b3ada0;"></div>
+
+      <div style="position: absolute; left: 694px; top: 78px; width: 150px; background: #fffdf8; border: 1.5px solid #14161c; box-shadow: 3px 3px 0 rgba(20,22,28,0.12);">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 11px;">
+          <div style="width: 28px; height: 28px; background: #f2efe6; border: 1px solid #14161c; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#14161c" stroke-width="1.6"><path d="M9 6l-5 6 5 6M15 6l5 6-5 6"></path></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 1px;">
+            <div style="font-size: 12.5px; font-weight: 600;">Score lead</div>
+            <div style="font-family: 'Azeret Mono', monospace; font-size: 9.5px; color: #7c7870;">code</div>
+          </div>
+        </div>
+      </div>
+      <div style="position: absolute; left: 689px; top: 99px; width: 10px; height: 10px; background: #fffdf8; border: 1.5px solid #14161c;"></div>
+
+      <div style="position: absolute; left: 694px; top: 230px; width: 150px; background: #eae6da; border: 1.5px dashed #b3ada0;">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 10px 11px;">
+          <div style="width: 28px; height: 28px; background: #e2ddd0; border: 1px solid #b3ada0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8d887d" stroke-width="1.6"><rect x="4" y="5" width="16" height="14"></rect><path d="M4 10h16M9 10v9"></path></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 1px;">
+            <div style="font-size: 12.5px; font-weight: 600; color: #8d887d;">Mark unknown</div>
+            <div style="font-family: 'Azeret Mono', monospace; font-size: 9.5px; color: #a09a8d;">set &middot; skipped</div>
+          </div>
+        </div>
+      </div>
+      <div style="position: absolute; left: 689px; top: 251px; width: 10px; height: 10px; background: #eae6da; border: 1.5px solid #b3ada0;"></div>
+
+      <div style="position: absolute; left: 18px; bottom: 18px; display: flex; background: #fffdf8; border: 1.5px solid #14161c;">
+        <div style="width: 28px; height: 27px; display: flex; align-items: center; justify-content: center; border-right: 1px solid #ddd8cc;">&minus;</div>
+        <div style="padding: 0 10px; height: 27px; display: flex; align-items: center; font-family: 'Azeret Mono', monospace; font-size: 10.5px; border-right: 1px solid #ddd8cc;">100%</div>
+        <div style="width: 28px; height: 27px; display: flex; align-items: center; justify-content: center;">+</div>
+      </div>
+
+      <div style="position: absolute; right: 18px; bottom: 18px; width: 134px; height: 80px; background: #fffdf8; border: 1.5px solid #14161c;">
+        <div style="position: absolute; left: 12px; top: 32px; width: 22px; height: 8px; background: #b7c6ee;"></div>
+        <div style="position: absolute; left: 43px; top: 32px; width: 22px; height: 8px; background: #2a5bd7;"></div>
+        <div style="position: absolute; left: 74px; top: 32px; width: 18px; height: 8px; background: #b7c6ee;"></div>
+        <div style="position: absolute; left: 100px; top: 19px; width: 18px; height: 8px; background: #b7c6ee;"></div>
+        <div style="position: absolute; left: 100px; top: 48px; width: 18px; height: 8px; background: #ddd8cc;"></div>
+      </div>
+    </div>
+
+    <div style="width: 348px; flex-shrink: 0; background: #1a1d24; color: #e9e6dd; display: flex; flex-direction: column;">
+      <div style="display: flex; align-items: center; gap: 11px; padding: 14px 16px; border-bottom: 1px solid #2c2f38;">
+        <div style="width: 30px; height: 30px; background: #14161c; border: 1px solid #2c2f38; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7ea0f5" stroke-width="1.6"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"></path></svg></div>
+        <div style="display: flex; flex-direction: column; gap: 1px; flex-grow: 1;">
+          <div style="font-size: 14px; font-weight: 700;">Fetch profile</div>
+          <div style="font-family: 'Azeret Mono', monospace; font-size: 9.5px; color: #7c8090;">http.request</div>
+        </div>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6d7181" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </div>
+
+      <div style="display: flex; gap: 20px; padding: 0 16px; border-bottom: 1px solid #2c2f38;">
+        <div style="padding: 10px 0; font-size: 12.5px; font-weight: 600; border-bottom: 2px solid #2a5bd7;">Parameters</div>
+        <div style="padding: 10px 0; font-size: 12.5px; color: #7c8090;">Settings</div>
+        <div style="padding: 10px 0; font-size: 12.5px; color: #7c8090;">Output</div>
+      </div>
+
+      <div style="padding: 16px; display: flex; flex-direction: column; gap: 16px; flex-grow: 1;">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="font-size: 11.5px; font-weight: 600; color: #9a9dab;">Method</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 11px; background: #14161c; border: 1px solid #2c2f38; font-family: 'Azeret Mono', monospace; font-size: 12px;">
+            <span>GET</span>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6d7181" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11.5px; font-weight: 600; color: #9a9dab;">URL</span>
+            <span style="font-family: 'Azeret Mono', monospace; font-size: 9.5px; color: #7ea0f5; border: 1px solid #2a5bd7; padding: 1px 6px;">fx</span>
+          </div>
+          <div style="padding: 9px 11px; background: #14161c; border: 1px solid #2c2f38; font-family: 'Azeret Mono', monospace; font-size: 11.5px; line-height: 1.75;">
+            <span style="color: #c3c0b8;">https://api.clearbit.com/v2/people/find?email=</span><span style="background: rgba(42,91,215,0.32); color: #b7c6ee; padding: 1px 3px;">&#123;&#123; $json.email &#125;&#125;</span>
+          </div>
+          <div style="font-family: 'Azeret Mono', monospace; font-size: 10px; color: #6d7181;">&rarr; &hellip;/people/find?email=ha.nguyen@acme.vn</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="font-size: 11.5px; font-weight: 600; color: #9a9dab;">Authentication</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 9px 11px; background: #14161c; border: 1px solid #2c2f38; font-size: 12px;">
+            <span style="color: #7c8090;">None</span>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6d7181" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11.5px; font-weight: 600; color: #9a9dab;">Headers</span>
+            <span style="font-size: 11.5px; color: #7ea0f5; font-weight: 600;">+ Add</span>
+          </div>
+          <div style="display: flex; gap: 7px;">
+            <div style="flex-grow: 1; padding: 8px 10px; background: #14161c; border: 1px solid #2c2f38; font-family: 'Azeret Mono', monospace; font-size: 11px;">Authorization</div>
+            <div style="flex-grow: 1; padding: 8px 10px; background: #14161c; border: 1px solid #2c2f38; font-family: 'Azeret Mono', monospace; font-size: 11px; color: #7c8090;">Bearer &hellip;</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 11.5px; font-weight: 600; color: #9a9dab;">Retry on fail</span>
+          <div style="width: 32px; height: 17px; border-radius: 999px; background: #2a5bd7; display: flex; align-items: center; justify-content: flex-end; padding: 0 2px;"><div style="width: 13px; height: 13px; border-radius: 999px; background: #ffffff;"></div></div>
+        </div>
+      </div>
+
+      <div style="padding: 14px 16px; border-top: 1px solid #2c2f38;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border: 1px solid #2a5bd7; color: #7ea0f5; font-size: 12.5px; font-weight: 600;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="#7ea0f5"><path d="M6 3l14 9-14 9z"></path></svg>
+          <span>Test step</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 208px; flex-shrink: 0; background: #1a1d24; color: #e9e6dd; display: flex; flex-direction: column;">
+    <div style="display: flex; align-items: center; gap: 16px; padding: 0 16px; height: 40px; border-bottom: 1px solid #2c2f38;">
+      <div style="font-size: 12.5px; font-weight: 600; height: 40px; display: flex; align-items: center; border-bottom: 2px solid #2a5bd7;">Execution log</div>
+      <div style="font-size: 12.5px; color: #7c8090;">Data</div>
+      <div style="width: 1px; height: 16px; background: #2c2f38;"></div>
+      <div style="display: flex; align-items: center; gap: 7px;">
+        <span style="width: 7px; height: 7px; background: #3f9e63;"></span>
+        <span style="font-size: 11.5px; font-weight: 600; color: #6cc78d;">Succeeded</span>
+        <span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #6d7181;">1.42s &middot; exec_8f21c</span>
+      </div>
+      <div style="flex-grow: 1;"></div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6d7181" stroke-width="2"><path d="M6 15l6-6 6 6"></path></svg>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 22px 1.4fr 1fr 70px 70px 92px; padding: 7px 16px; font-family: 'Azeret Mono', monospace; font-size: 9.5px; letter-spacing: 0.08em; color: #6d7181; border-bottom: 1px solid #23262f;">
+      <span></span><span>NODE</span><span>TYPE</span><span>ITEMS</span><span>TIME</span><span>STARTED</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 22px 1.4fr 1fr 70px 70px 92px; align-items: center; padding: 8px 16px; font-size: 12px; border-bottom: 1px solid #20232b;">
+      <span style="width: 7px; height: 7px; background: #3f9e63;"></span><span>New lead</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #7c8090;">trigger.webhook</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #c3c0b8;">1</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #c3c0b8;">2ms</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #6d7181;">14:02:11.4</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 22px 1.4fr 1fr 70px 70px 92px; align-items: center; padding: 8px 16px; font-size: 12px; background: #14161c; border-left: 3px solid #2a5bd7; border-bottom: 1px solid #20232b;">
+      <span style="width: 7px; height: 7px; background: #3f9e63;"></span><span style="font-weight: 600;">Fetch profile</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #7c8090;">http.request</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #c3c0b8;">12</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #c3c0b8;">318ms</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #6d7181;">14:02:11.4</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 22px 1.4fr 1fr 70px 70px 92px; align-items: center; padding: 8px 16px; font-size: 12px; border-bottom: 1px solid #20232b;">
+      <span style="width: 7px; height: 7px; background: #3f9e63;"></span><span>Has company?</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #7c8090;">if</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #c3c0b8;">12</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #c3c0b8;">1ms</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #6d7181;">14:02:11.7</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 22px 1.4fr 1fr 70px 70px 92px; align-items: center; padding: 8px 16px; font-size: 12px; border-bottom: 1px solid #20232b;">
+      <span style="width: 7px; height: 7px; background: #3f9e63;"></span><span>Score lead</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #7c8090;">code</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #c3c0b8;">9</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #c3c0b8;">44ms</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px; color: #6d7181;">14:02:11.7</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 22px 1.4fr 1fr 70px 70px 92px; align-items: center; padding: 8px 16px; font-size: 12px; color: #6d7181;">
+      <span style="width: 7px; height: 7px; background: #3d4049;"></span><span>Mark unknown</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px;">set</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px;">&mdash;</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px;">skipped</span><span style="font-family: 'Azeret Mono', monospace; font-size: 10.5px;">&mdash;</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

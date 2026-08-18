@@ -1,0 +1,38 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "title": "Option A · Terminal noir", "x": 0, "y": 0, "w": 1440, "h": 900 },
+    { "file": "StudioDark.dc.html", "title": "Option B · Studio dark", "x": 1560, "y": 0, "w": 1440, "h": 900 },
+    { "file": "Blueprint.dc.html", "title": "Option C · Blueprint", "x": 3120, "y": 0, "w": 1440, "h": 900 }
+  ],
+  "annotations": [
+    {
+      "id": "brief",
+      "x": 0,
+      "y": -300,
+      "w": 460,
+      "text": "Chọn 1 trong 3 hướng thẩm mỹ\n\nCả 3 artboard là CÙNG một màn hình (Workflow editor) với cùng cấu trúc và cùng nội dung — chỉ khác bảng màu, typography và mật độ. Chọn xong mình mới dựng đủ 6 màn hi-fi.\n\n\"Flowgrid\" là tên tạm — chưa chốt."
+    },
+    {
+      "id": "opt-a",
+      "x": 500,
+      "y": -300,
+      "w": 420,
+      "text": "OPTION A · Terminal noir\n\nGóc sắc 0px, lưới kỹ thuật, mono dày đặc, một màu nhấn acid lime. Space Grotesk + JetBrains Mono.\n\nVì sao: đọc ra ngay là công cụ hạ tầng nghiêm túc; mật độ cao nên nhìn được nhiều node/log cùng lúc — đúng thứ dev cần khi debug.\n\nĐánh đổi: khô, ít thân thiện với người không phải dev; màu acid dễ gây mỏi mắt nếu dùng lâu; khó bán cho khách doanh nghiệp ở GĐ4."
+    },
+    {
+      "id": "opt-b",
+      "x": 2060,
+      "y": -300,
+      "w": 420,
+      "text": "OPTION B · Studio dark\n\nBo 10-13px, shadow mềm, nhấn violet, khoảng thở rộng. Manrope + JetBrains Mono.\n\nVì sao: quen thuộc và dễ chịu nhất với số đông; ăn ảnh khi demo/pitch; dễ mở rộng thành SaaS có landing page đồng bộ.\n\nĐánh đổi: đây là ngôn ngữ hình ảnh phổ biến nhất hiện nay — an toàn nhưng dễ bị coi là 'chưa có cá tính'. Mật độ thoáng nên mỗi màn chứa ít thông tin hơn A."
+    },
+    {
+      "id": "opt-c",
+      "x": 3620,
+      "y": -300,
+      "w": 420,
+      "text": "OPTION C · Blueprint\n\nCanvas nền giấy sáng kiểu bản vẽ kỹ thuật, chrome tối bao quanh, nhấn xanh mực, node có viền đậm + đổ bóng cứng. Instrument Sans + Azeret Mono.\n\nVì sao: khác biệt nhất — ẩn dụ 'bản vẽ quy trình' hợp đúng với sản phẩm; canvas sáng làm graph dễ đọc và in/chụp màn hình đẹp.\n\nĐánh đổi: chuyển sáng-tối liên tục giữa canvas và panel dễ mỏi mắt nếu làm việc lâu; ngược kỳ vọng 'dev tool phải dark'; tốn công hơn để giữ nhất quán khi thêm màn mới."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

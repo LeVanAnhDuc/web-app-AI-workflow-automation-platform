@@ -1,0 +1,275 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif; }
+    a { color: #a78bfa; } a:hover { color: #c4b5fd; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #0b0d12; color: #e8eaf0; font-size: 13px; overflow: hidden;">
+
+  <div style="height: 56px; flex-shrink: 0; display: flex; align-items: center; gap: 16px; padding: 0 18px; background: #12151c; border-bottom: 1px solid rgba(255,255,255,0.06);">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(145deg, #8b5cf6, #6d4aff); display: flex; align-items: center; justify-content: center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><path d="M10 6.5h4a3.5 3.5 0 0 1 3.5 3.5v4"></path></svg>
+      </div>
+      <span style="font-size: 15px; font-weight: 700; letter-spacing: -0.01em;">Flowgrid</span>
+    </div>
+    <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.08);"></div>
+    <div style="display: flex; align-items: center; gap: 8px; color: #8a90a2; font-size: 13px;">
+      <span>Workflows</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4d5364" stroke-width="2"><path d="M9 6l6 6-6 6"></path></svg>
+      <span style="color: #e8eaf0; font-weight: 600;">Lead enrichment</span>
+      <span style="font-size: 11px; padding: 2px 7px; border-radius: 999px; background: rgba(255,255,255,0.05); color: #8a90a2;">v7</span>
+    </div>
+    <div style="flex-grow: 1;"></div>
+    <div style="display: flex; align-items: center; gap: 9px; color: #8a90a2; font-size: 12.5px;">
+      <span>Inactive</span>
+      <div style="width: 34px; height: 19px; border-radius: 999px; background: #232838; display: flex; align-items: center; padding: 0 3px;"><div style="width: 13px; height: 13px; border-radius: 999px; background: #565d72;"></div></div>
+    </div>
+    <div style="padding: 8px 15px; border-radius: 9px; background: rgba(255,255,255,0.05); color: #c9cddb; font-size: 13px; font-weight: 500;">Save</div>
+    <div style="display: flex; align-items: center; gap: 7px; padding: 8px 17px; border-radius: 9px; background: #8b5cf6; color: #ffffff; font-size: 13px; font-weight: 600; box-shadow: 0 4px 14px rgba(139,92,246,0.35);">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="#ffffff"><path d="M6 3l14 9-14 9z"></path></svg>
+      <span>Run</span>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; min-height: 0;">
+
+    <div style="width: 240px; flex-shrink: 0; background: #12151c; border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; padding: 14px 12px; gap: 4px;">
+      <div style="display: flex; align-items: center; gap: 9px; padding: 10px 12px; border-radius: 10px; background: #1a1e28; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 8px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7284" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <span style="color: #6b7284; font-size: 13px;">Search nodes</span>
+      </div>
+
+      <div style="padding: 8px 12px 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #565d72;">TRIGGERS</div>
+      <div style="display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px; color: #b9bfcf;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a90a2" stroke-width="1.8" stroke-linecap="round"><path d="M13 2L5 13h6l-2 9 8-11h-6z"></path></svg><span style="font-size: 13px;">Manual</span></div>
+      <div style="display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px; background: rgba(139,92,246,0.12);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v6M12 21a4 4 0 0 0 4-4M7 12a5 5 0 0 1 10 0"></path><circle cx="12" cy="16" r="2"></circle></svg><span style="font-size: 13px; color: #e8eaf0; font-weight: 600;">Webhook</span></div>
+      <div style="display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px; color: #b9bfcf;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a90a2" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span style="font-size: 13px;">Schedule</span></div>
+
+      <div style="padding: 14px 12px 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #565d72;">CORE</div>
+      <div style="display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px; color: #b9bfcf;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a90a2" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"></path></svg><span style="font-size: 13px;">HTTP Request</span></div>
+      <div style="display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px; color: #b9bfcf;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a90a2" stroke-width="1.8" stroke-linecap="round"><path d="M9 6l-5 6 5 6M15 6l5 6-5 6"></path></svg><span style="font-size: 13px;">Code</span></div>
+      <div style="display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px; color: #b9bfcf;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a90a2" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h6l4 6h6M14 12l-4 6H4M20 12l-3-3M20 12l-3 3"></path></svg><span style="font-size: 13px;">IF</span></div>
+      <div style="display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px; color: #b9bfcf;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a90a2" stroke-width="1.8"><rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M4 10h16M9 10v9"></path></svg><span style="font-size: 13px;">Set</span></div>
+      <div style="display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px; color: #b9bfcf;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a90a2" stroke-width="1.8" stroke-linecap="round"><path d="M5 5v4a4 4 0 0 0 4 4h10M5 19v-4a4 4 0 0 1 4-4M16 9l3 4-3 4"></path></svg><span style="font-size: 13px;">Merge</span></div>
+
+      <div style="padding: 14px 12px 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #565d72;">AI</div>
+      <div style="display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px; color: #565d72;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#565d72" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l2.2 5.3L20 10l-5.8 1.7L12 17l-2.2-5.3L4 10l5.8-1.7z"></path></svg><span style="font-size: 13px;">LLM</span><span style="margin-left: auto; font-size: 10px; padding: 2px 7px; border-radius: 999px; background: rgba(255,255,255,0.05);">P2</span></div>
+      <div style="display: flex; align-items: center; gap: 11px; padding: 9px 12px; border-radius: 10px; color: #565d72;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#565d72" stroke-width="1.8"><rect x="4" y="8" width="16" height="12" rx="3"></rect><path d="M12 4v4M9 14h.01M15 14h.01"></path></svg><span style="font-size: 13px;">AI Agent</span><span style="margin-left: auto; font-size: 10px; padding: 2px 7px; border-radius: 999px; background: rgba(255,255,255,0.05);">P2</span></div>
+    </div>
+
+    <div style="flex-grow: 1; position: relative; overflow: hidden; background-color: #0b0d12; background-image: radial-gradient(rgba(255,255,255,0.07) 1.2px, transparent 1.2px); background-size: 24px 24px;">
+
+      <svg width="840" height="636" viewBox="0 0 840 636" style="position: absolute; left: 0; top: 0;">
+        <path d="M192 161 C 218 161, 218 161, 244 161" stroke="#8b5cf6" stroke-width="2" fill="none" stroke-linecap="round"></path>
+        <path d="M412 161 C 438 161, 438 161, 464 161" stroke="#8b5cf6" stroke-width="2" fill="none" stroke-linecap="round"></path>
+        <path d="M632 151 C 655 151, 649 101, 672 101" stroke="#8b5cf6" stroke-width="2" fill="none" stroke-linecap="round"></path>
+        <path d="M632 173 C 655 173, 649 251, 672 251" stroke="#2b3040" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="5 6"></path>
+        <rect x="640" y="112" width="34" height="17" rx="8" fill="#1b1636"></rect>
+        <text x="647" y="124" fill="#a78bfa" font-family="Manrope, sans-serif" font-size="10" font-weight="600">true</text>
+        <rect x="638" y="196" width="38" height="17" rx="8" fill="#181b24"></rect>
+        <text x="645" y="208" fill="#6b7284" font-family="Manrope, sans-serif" font-size="10" font-weight="600">false</text>
+      </svg>
+
+      <div style="position: absolute; left: 24px; top: 130px; width: 168px; border-radius: 13px; background: #161a23; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
+        <div style="display: flex; align-items: center; gap: 11px; padding: 13px 14px;">
+          <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(139,92,246,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v6M12 21a4 4 0 0 0 4-4M7 12a5 5 0 0 1 10 0"></path><circle cx="12" cy="16" r="2"></circle></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <div style="font-size: 13px; font-weight: 600;">New lead</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6b7284;">trigger.webhook</div>
+          </div>
+        </div>
+      </div>
+      <div style="position: absolute; left: 186px; top: 155px; width: 11px; height: 11px; border-radius: 999px; background: #8b5cf6; border: 2px solid #0b0d12;"></div>
+
+      <div style="position: absolute; left: 244px; top: 130px; width: 168px; border-radius: 13px; background: #171b25; border: 1.5px solid #8b5cf6; box-shadow: 0 0 0 4px rgba(139,92,246,0.16), 0 10px 28px rgba(0,0,0,0.45);">
+        <div style="display: flex; align-items: center; gap: 11px; padding: 13px 14px;">
+          <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c9cddb" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"></path></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <div style="font-size: 13px; font-weight: 600;">Fetch profile</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6b7284;">http.request</div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 7px; padding: 8px 14px; border-top: 1px solid rgba(255,255,255,0.06);">
+          <span style="width: 6px; height: 6px; border-radius: 999px; background: #34d399;"></span>
+          <span style="font-size: 11px; color: #8a90a2;">12 items</span>
+          <span style="margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6b7284;">318ms</span>
+        </div>
+      </div>
+      <div style="position: absolute; left: 239px; top: 155px; width: 11px; height: 11px; border-radius: 999px; background: #565d72; border: 2px solid #0b0d12;"></div>
+      <div style="position: absolute; left: 406px; top: 155px; width: 11px; height: 11px; border-radius: 999px; background: #8b5cf6; border: 2px solid #0b0d12;"></div>
+
+      <div style="position: absolute; left: 464px; top: 130px; width: 168px; border-radius: 13px; background: #161a23; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
+        <div style="display: flex; align-items: center; gap: 11px; padding: 13px 14px;">
+          <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c9cddb" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h6l4 6h6M14 12l-4 6H4M20 12l-3-3M20 12l-3 3"></path></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <div style="font-size: 13px; font-weight: 600;">Has company?</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6b7284;">if</div>
+          </div>
+        </div>
+      </div>
+      <div style="position: absolute; left: 459px; top: 155px; width: 11px; height: 11px; border-radius: 999px; background: #565d72; border: 2px solid #0b0d12;"></div>
+      <div style="position: absolute; left: 626px; top: 145px; width: 11px; height: 11px; border-radius: 999px; background: #8b5cf6; border: 2px solid #0b0d12;"></div>
+      <div style="position: absolute; left: 626px; top: 167px; width: 11px; height: 11px; border-radius: 999px; background: #3b415a; border: 2px solid #0b0d12;"></div>
+
+      <div style="position: absolute; left: 672px; top: 78px; width: 150px; border-radius: 13px; background: #161a23; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 24px rgba(0,0,0,0.4);">
+        <div style="display: flex; align-items: center; gap: 11px; padding: 13px 14px;">
+          <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c9cddb" stroke-width="1.8" stroke-linecap="round"><path d="M9 6l-5 6 5 6M15 6l5 6-5 6"></path></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <div style="font-size: 13px; font-weight: 600;">Score lead</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6b7284;">code</div>
+          </div>
+        </div>
+      </div>
+      <div style="position: absolute; left: 667px; top: 95px; width: 11px; height: 11px; border-radius: 999px; background: #565d72; border: 2px solid #0b0d12;"></div>
+
+      <div style="position: absolute; left: 672px; top: 228px; width: 150px; border-radius: 13px; background: #12151c; border: 1px dashed #2b3040;">
+        <div style="display: flex; align-items: center; gap: 11px; padding: 13px 14px;">
+          <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,0.035); display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#565d72" stroke-width="1.8"><rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M4 10h16M9 10v9"></path></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <div style="font-size: 13px; font-weight: 600; color: #6b7284;">Mark unknown</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #4d5364;">set &middot; skipped</div>
+          </div>
+        </div>
+      </div>
+      <div style="position: absolute; left: 667px; top: 245px; width: 11px; height: 11px; border-radius: 999px; background: #3b415a; border: 2px solid #0b0d12;"></div>
+
+      <div style="position: absolute; left: 20px; bottom: 20px; display: flex; align-items: center; border-radius: 10px; background: #161a23; border: 1px solid rgba(255,255,255,0.07); box-shadow: 0 6px 18px rgba(0,0,0,0.35);">
+        <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: #8a90a2;">&minus;</div>
+        <div style="padding: 0 8px; font-size: 12px; color: #c9cddb; font-weight: 600;">100%</div>
+        <div style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: #8a90a2;">+</div>
+      </div>
+
+      <div style="position: absolute; right: 20px; bottom: 20px; width: 138px; height: 82px; border-radius: 11px; background: rgba(18,21,28,0.9); border: 1px solid rgba(255,255,255,0.07);">
+        <div style="position: absolute; left: 14px; top: 33px; width: 22px; height: 9px; border-radius: 3px; background: #3b2f6b;"></div>
+        <div style="position: absolute; left: 45px; top: 33px; width: 22px; height: 9px; border-radius: 3px; background: #8b5cf6;"></div>
+        <div style="position: absolute; left: 76px; top: 33px; width: 18px; height: 9px; border-radius: 3px; background: #3b2f6b;"></div>
+        <div style="position: absolute; left: 102px; top: 20px; width: 18px; height: 9px; border-radius: 3px; background: #3b2f6b;"></div>
+        <div style="position: absolute; left: 102px; top: 49px; width: 18px; height: 9px; border-radius: 3px; background: #262b38;"></div>
+      </div>
+    </div>
+
+    <div style="width: 360px; flex-shrink: 0; background: #12151c; border-left: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column;">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 16px 18px;">
+        <div style="width: 34px; height: 34px; border-radius: 10px; background: rgba(139,92,246,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"></path></svg></div>
+        <div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1;">
+          <div style="font-size: 14.5px; font-weight: 700;">Fetch profile</div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6b7284;">http.request</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7284" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </div>
+
+      <div style="display: flex; gap: 5px; padding: 0 14px 14px;">
+        <div style="padding: 7px 14px; border-radius: 8px; background: rgba(255,255,255,0.07); font-size: 12.5px; font-weight: 600;">Parameters</div>
+        <div style="padding: 7px 14px; border-radius: 8px; font-size: 12.5px; color: #6b7284;">Settings</div>
+        <div style="padding: 7px 14px; border-radius: 8px; font-size: 12.5px; color: #6b7284;">Output</div>
+      </div>
+
+      <div style="padding: 0 18px; display: flex; flex-direction: column; gap: 18px; flex-grow: 1;">
+        <div style="display: flex; flex-direction: column; gap: 7px;">
+          <div style="font-size: 12px; font-weight: 600; color: #8a90a2;">Method</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 11px 13px; border-radius: 10px; background: #1a1e28; border: 1px solid rgba(255,255,255,0.06); font-family: 'JetBrains Mono', monospace; font-size: 12.5px;">
+            <span>GET</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7284" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 7px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 12px; font-weight: 600; color: #8a90a2;">URL</span>
+            <span style="font-size: 10.5px; font-weight: 600; color: #a78bfa; background: rgba(139,92,246,0.14); padding: 2px 8px; border-radius: 999px;">expression</span>
+          </div>
+          <div style="padding: 11px 13px; border-radius: 10px; background: #1a1e28; border: 1px solid rgba(255,255,255,0.06); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.75;">
+            <span style="color: #b9bfcf;">https://api.clearbit.com/v2/people/find?email=</span><span style="background: rgba(139,92,246,0.2); color: #c4b5fd; padding: 2px 4px; border-radius: 4px;">&#123;&#123; $json.email &#125;&#125;</span>
+          </div>
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #565d72;">&rarr; &hellip;/people/find?email=ha.nguyen@acme.vn</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 7px;">
+          <div style="font-size: 12px; font-weight: 600; color: #8a90a2;">Authentication</div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 11px 13px; border-radius: 10px; background: #1a1e28; border: 1px solid rgba(255,255,255,0.06); font-size: 12.5px;">
+            <span style="color: #6b7284;">None</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7284" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 9px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 12px; font-weight: 600; color: #8a90a2;">Headers</span>
+            <span style="font-size: 12px; color: #a78bfa; font-weight: 600;">+ Add</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <div style="flex-grow: 1; padding: 9px 12px; border-radius: 9px; background: #1a1e28; border: 1px solid rgba(255,255,255,0.06); font-family: 'JetBrains Mono', monospace; font-size: 11.5px;">Authorization</div>
+            <div style="flex-grow: 1; padding: 9px 12px; border-radius: 9px; background: #1a1e28; border: 1px solid rgba(255,255,255,0.06); font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #6b7284;">Bearer &hellip;</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 12px; font-weight: 600; color: #8a90a2;">Retry on fail</span>
+          <div style="width: 34px; height: 19px; border-radius: 999px; background: #8b5cf6; display: flex; align-items: center; justify-content: flex-end; padding: 0 3px;"><div style="width: 13px; height: 13px; border-radius: 999px; background: #ffffff;"></div></div>
+        </div>
+      </div>
+
+      <div style="padding: 16px 18px;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 10px; background: rgba(139,92,246,0.14); color: #c4b5fd; font-size: 13px; font-weight: 600;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#c4b5fd"><path d="M6 3l14 9-14 9z"></path></svg>
+          <span>Test step</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 208px; flex-shrink: 0; background: #12151c; border-top: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column;">
+    <div style="display: flex; align-items: center; gap: 16px; padding: 0 18px; height: 46px;">
+      <div style="display: flex; gap: 5px;">
+        <div style="padding: 6px 13px; border-radius: 8px; background: rgba(255,255,255,0.07); font-size: 12.5px; font-weight: 600;">Execution log</div>
+        <div style="padding: 6px 13px; border-radius: 8px; font-size: 12.5px; color: #6b7284;">Data</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 7px; padding: 4px 11px; border-radius: 999px; background: rgba(52,211,153,0.12);">
+        <span style="width: 6px; height: 6px; border-radius: 999px; background: #34d399;"></span>
+        <span style="font-size: 11.5px; font-weight: 600; color: #34d399;">Succeeded</span>
+      </div>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #565d72;">1.42s &middot; exec_8f21c</span>
+      <div style="flex-grow: 1;"></div>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6b7284" stroke-width="2" stroke-linecap="round"><path d="M6 15l6-6 6 6"></path></svg>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 22px 1.4fr 1fr 70px 70px 96px; padding: 6px 18px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; color: #565d72;">
+      <span></span><span>NODE</span><span>TYPE</span><span>ITEMS</span><span>TIME</span><span>STARTED</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 22px 1.4fr 1fr 70px 70px 96px; align-items: center; padding: 9px 18px; font-size: 12.5px;">
+      <span style="width: 7px; height: 7px; border-radius: 999px; background: #34d399;"></span><span>New lead</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6b7284;">trigger.webhook</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #b9bfcf;">1</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #b9bfcf;">2ms</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #565d72;">14:02:11.4</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 22px 1.4fr 1fr 70px 70px 96px; align-items: center; padding: 9px 18px; font-size: 12.5px; background: rgba(139,92,246,0.09); border-radius: 8px; margin: 0 10px;">
+      <span style="width: 7px; height: 7px; border-radius: 999px; background: #34d399;"></span><span style="font-weight: 600;">Fetch profile</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6b7284;">http.request</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #b9bfcf;">12</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #b9bfcf;">318ms</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #565d72;">14:02:11.4</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 22px 1.4fr 1fr 70px 70px 96px; align-items: center; padding: 9px 18px; font-size: 12.5px;">
+      <span style="width: 7px; height: 7px; border-radius: 999px; background: #34d399;"></span><span>Has company?</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6b7284;">if</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #b9bfcf;">12</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #b9bfcf;">1ms</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #565d72;">14:02:11.7</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 22px 1.4fr 1fr 70px 70px 96px; align-items: center; padding: 9px 18px; font-size: 12.5px;">
+      <span style="width: 7px; height: 7px; border-radius: 999px; background: #34d399;"></span><span>Score lead</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6b7284;">code</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #b9bfcf;">9</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #b9bfcf;">44ms</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #565d72;">14:02:11.7</span>
+    </div>
+    <div style="display: grid; grid-template-columns: 22px 1.4fr 1fr 70px 70px 96px; align-items: center; padding: 9px 18px; font-size: 12.5px; color: #565d72;">
+      <span style="width: 7px; height: 7px; border-radius: 999px; background: #3b415a;"></span><span>Mark unknown</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">set</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">&mdash;</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">skipped</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">&mdash;</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

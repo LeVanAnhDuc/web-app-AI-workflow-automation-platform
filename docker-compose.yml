@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: flowgrid-postgres
+    environment:
+      POSTGRES_USER: flowgrid
+      POSTGRES_PASSWORD: flowgrid
+      POSTGRES_DB: flowgrid
+    ports:
+      - "5433:5432"
+    volumes:
+      - flowgrid-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flowgrid -d flowgrid"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  flowgrid-pgdata:

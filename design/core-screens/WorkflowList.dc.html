@@ -1,0 +1,248 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif; }
+    a { color: #a78bfa; } a:hover { color: #c4b5fd; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #0b0d12; color: #e8eaf0; font-size: 13px; overflow: hidden;">
+
+  <div style="height: 56px; flex-shrink: 0; display: flex; align-items: center; gap: 26px; padding: 0 26px; background: #12151c; border-bottom: 1px solid rgba(255,255,255,0.06);">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(145deg, #8b5cf6, #6d4aff); display: flex; align-items: center; justify-content: center;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><path d="M10 6.5h4a3.5 3.5 0 0 1 3.5 3.5v4"></path></svg>
+      </div>
+      <span style="font-size: 15px; font-weight: 700; letter-spacing: -0.01em;">Flowgrid</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 4px;">
+      <div style="padding: 7px 14px; border-radius: 9px; background: rgba(255,255,255,0.07); font-size: 13px; font-weight: 600;">Workflows</div>
+      <div style="padding: 7px 14px; border-radius: 9px; font-size: 13px; color: #8a90a2;">Executions</div>
+      <div style="padding: 7px 14px; border-radius: 9px; font-size: 13px; color: #8a90a2;">Credentials</div>
+    </div>
+    <div style="flex-grow: 1;"></div>
+    <div style="display: flex; align-items: center; gap: 9px; padding: 7px 12px; border-radius: 9px; background: #1a1e28; border: 1px solid rgba(255,255,255,0.06); width: 190px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7284" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      <span style="font-size: 12.5px; color: #6b7284;">Search</span>
+      <div style="flex-grow: 1;"></div>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #565d72; background: rgba(255,255,255,0.05); padding: 1px 5px; border-radius: 4px;">/</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 9px;">
+      <div style="width: 30px; height: 30px; border-radius: 999px; background: #2d3446; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #c9cddb;">HN</div>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7284" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; padding: 32px 40px; display: flex; flex-direction: column; gap: 22px; min-height: 0;">
+
+    <div style="display: flex; align-items: flex-end; gap: 16px;">
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <div style="font-size: 27px; font-weight: 800; letter-spacing: -0.03em;">Workflows</div>
+        <div style="font-size: 13.5px; color: #8a90a2;">7 workflows &middot; 4 active</div>
+      </div>
+      <div style="flex-grow: 1;"></div>
+      <div style="display: flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 10px; background: #8b5cf6; color: #ffffff; font-size: 13.5px; font-weight: 700; box-shadow: 0 6px 20px rgba(139,92,246,0.32);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+        <span>New workflow</span>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 10px; padding: 10px 13px; border-radius: 10px; background: #12151c; border: 1px solid rgba(255,255,255,0.07); width: 280px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7284" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <span style="font-size: 13px; color: #6b7284;">Filter by name</span>
+      </div>
+      <div style="display: flex; padding: 3px; border-radius: 10px; background: #12151c; border: 1px solid rgba(255,255,255,0.07);">
+        <div style="padding: 7px 15px; border-radius: 7px; background: rgba(255,255,255,0.08); font-size: 12.5px; font-weight: 600;">All</div>
+        <div style="padding: 7px 15px; border-radius: 7px; font-size: 12.5px; color: #8a90a2;">Active</div>
+        <div style="padding: 7px 15px; border-radius: 7px; font-size: 12.5px; color: #8a90a2;">Inactive</div>
+      </div>
+      <div style="flex-grow: 1;"></div>
+      <div style="display: flex; align-items: center; gap: 9px; padding: 10px 13px; border-radius: 10px; background: #12151c; border: 1px solid rgba(255,255,255,0.07);">
+        <span style="font-size: 12.5px; color: #8a90a2;">Sort</span>
+        <span style="font-size: 12.5px; font-weight: 600;">Recently updated</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7284" stroke-width="2"><path d="M6 9l6 6 6-6"></path></svg>
+      </div>
+    </div>
+
+    <div style="border-radius: 14px; background: #12151c; border: 1px solid rgba(255,255,255,0.07); overflow: hidden; display: flex; flex-direction: column;">
+
+      <div style="display: grid; grid-template-columns: 2.6fr 116px 1.6fr 168px 1.1fr 40px; align-items: center; padding: 12px 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #565d72; border-bottom: 1px solid rgba(255,255,255,0.06);">
+        <span>WORKFLOW</span><span>STATUS</span><span>LAST RUN</span><span>SUCCESS &middot; 7D</span><span>UPDATED</span><span></span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2.6fr 116px 1.6fr 168px 1.1fr 40px; align-items: center; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.045); background: rgba(139,92,246,0.055);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(139,92,246,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v6M12 21a4 4 0 0 0 4-4M7 12a5 5 0 0 1 10 0"></path><circle cx="12" cy="16" r="2"></circle></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 13.5px; font-weight: 600;">Lead enrichment</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6b7284;">webhook &middot; 5 nodes</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="width: 30px; height: 17px; border-radius: 999px; background: #34d399; display: flex; align-items: center; justify-content: flex-end; padding: 0 3px;"><div style="width: 11px; height: 11px; border-radius: 999px; background: #0b0d12;"></div></div>
+          <span style="font-size: 12px; font-weight: 600; color: #34d399;">Active</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 7px; height: 7px; border-radius: 999px; background: #34d399;"></span>
+          <span style="font-size: 12.5px; color: #b9bfcf;">2 minutes ago</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 70px; height: 5px; border-radius: 999px; background: #262b38; overflow: hidden;"><div style="width: 68px; height: 5px; border-radius: 999px; background: #34d399;"></div></div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #b9bfcf;">98%</span>
+        </div>
+        <span style="font-size: 12.5px; color: #8a90a2;">3 hours ago</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#6b7284"><circle cx="12" cy="5" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="12" cy="19" r="1.6"></circle></svg>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2.6fr 116px 1.6fr 168px 1.1fr 40px; align-items: center; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.045);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b9bfcf" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 13.5px; font-weight: 600;">Daily revenue digest</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6b7284;">schedule 09:00 &middot; 7 nodes</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="width: 30px; height: 17px; border-radius: 999px; background: #34d399; display: flex; align-items: center; justify-content: flex-end; padding: 0 3px;"><div style="width: 11px; height: 11px; border-radius: 999px; background: #0b0d12;"></div></div>
+          <span style="font-size: 12px; font-weight: 600; color: #34d399;">Active</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 7px; height: 7px; border-radius: 999px; background: #34d399;"></span>
+          <span style="font-size: 12.5px; color: #b9bfcf;">6 hours ago</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 70px; height: 5px; border-radius: 999px; background: #262b38; overflow: hidden;"><div style="width: 70px; height: 5px; border-radius: 999px; background: #34d399;"></div></div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #b9bfcf;">100%</span>
+        </div>
+        <span style="font-size: 12.5px; color: #8a90a2;">yesterday</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#6b7284"><circle cx="12" cy="5" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="12" cy="19" r="1.6"></circle></svg>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2.6fr 116px 1.6fr 168px 1.1fr 40px; align-items: center; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.045);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b9bfcf" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v6M12 21a4 4 0 0 0 4-4M7 12a5 5 0 0 1 10 0"></path><circle cx="12" cy="16" r="2"></circle></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 13.5px; font-weight: 600;">Support ticket triage</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6b7284;">webhook &middot; 9 nodes</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="width: 30px; height: 17px; border-radius: 999px; background: #34d399; display: flex; align-items: center; justify-content: flex-end; padding: 0 3px;"><div style="width: 11px; height: 11px; border-radius: 999px; background: #0b0d12;"></div></div>
+          <span style="font-size: 12px; font-weight: 600; color: #34d399;">Active</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 7px; height: 7px; border-radius: 999px; background: #f87171;"></span>
+          <span style="font-size: 12.5px; color: #f87171; font-weight: 600;">Failed 12 min ago</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 70px; height: 5px; border-radius: 999px; background: #262b38; overflow: hidden;"><div style="width: 53px; height: 5px; border-radius: 999px; background: #fbbf24;"></div></div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #b9bfcf;">76%</span>
+        </div>
+        <span style="font-size: 12.5px; color: #8a90a2;">2 days ago</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#6b7284"><circle cx="12" cy="5" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="12" cy="19" r="1.6"></circle></svg>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2.6fr 116px 1.6fr 168px 1.1fr 40px; align-items: center; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.045);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b9bfcf" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v6M12 21a4 4 0 0 0 4-4M7 12a5 5 0 0 1 10 0"></path><circle cx="12" cy="16" r="2"></circle></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 13.5px; font-weight: 600;">Stripe payment reconcile</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6b7284;">webhook &middot; 6 nodes</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="width: 30px; height: 17px; border-radius: 999px; background: #34d399; display: flex; align-items: center; justify-content: flex-end; padding: 0 3px;"><div style="width: 11px; height: 11px; border-radius: 999px; background: #0b0d12;"></div></div>
+          <span style="font-size: 12px; font-weight: 600; color: #34d399;">Active</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 7px; height: 7px; border-radius: 999px; background: #8b5cf6;"></span>
+          <span style="font-size: 12.5px; color: #c4b5fd; font-weight: 600;">Running now</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 70px; height: 5px; border-radius: 999px; background: #262b38; overflow: hidden;"><div style="width: 66px; height: 5px; border-radius: 999px; background: #34d399;"></div></div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #b9bfcf;">94%</span>
+        </div>
+        <span style="font-size: 12.5px; color: #8a90a2;">4 days ago</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#6b7284"><circle cx="12" cy="5" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="12" cy="19" r="1.6"></circle></svg>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2.6fr 116px 1.6fr 168px 1.1fr 40px; align-items: center; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.045);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6b7284" stroke-width="1.8" stroke-linecap="round"><path d="M13 2L5 13h6l-2 9 8-11h-6z"></path></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 13.5px; font-weight: 600; color: #b9bfcf;">Invoice OCR pipeline</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6b7284;">manual &middot; 4 nodes</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="width: 30px; height: 17px; border-radius: 999px; background: #262b38; display: flex; align-items: center; padding: 0 3px;"><div style="width: 11px; height: 11px; border-radius: 999px; background: #565d72;"></div></div>
+          <span style="font-size: 12px; color: #6b7284;">Inactive</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="width: 7px; height: 7px; border-radius: 999px; background: #34d399;"></span>
+          <span style="font-size: 12.5px; color: #b9bfcf;">4 days ago</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 70px; height: 5px; border-radius: 999px; background: #262b38; overflow: hidden;"><div style="width: 64px; height: 5px; border-radius: 999px; background: #34d399;"></div></div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #b9bfcf;">91%</span>
+        </div>
+        <span style="font-size: 12.5px; color: #8a90a2;">4 days ago</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#6b7284"><circle cx="12" cy="5" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="12" cy="19" r="1.6"></circle></svg>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2.6fr 116px 1.6fr 168px 1.1fr 40px; align-items: center; padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.045);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6b7284" stroke-width="1.8"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 13.5px; font-weight: 600; color: #b9bfcf;">Churn risk alert</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6b7284;">schedule 08:00 &middot; 5 nodes</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="width: 30px; height: 17px; border-radius: 999px; background: #262b38; display: flex; align-items: center; padding: 0 3px;"><div style="width: 11px; height: 11px; border-radius: 999px; background: #565d72;"></div></div>
+          <span style="font-size: 12px; color: #6b7284;">Inactive</span>
+        </div>
+        <span style="font-size: 12.5px; color: #565d72;">Never run</span>
+        <span style="font-size: 12.5px; color: #565d72;">&mdash;</span>
+        <span style="font-size: 12.5px; color: #8a90a2;">1 week ago</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#6b7284"><circle cx="12" cy="5" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="12" cy="19" r="1.6"></circle></svg>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2.6fr 116px 1.6fr 168px 1.1fr 40px; align-items: center; padding: 15px 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6b7284" stroke-width="1.8" stroke-linecap="round"><path d="M13 2L5 13h6l-2 9 8-11h-6z"></path></svg></div>
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 13.5px; font-weight: 600; color: #b9bfcf;">Contract summariser</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6b7284;">manual &middot; 3 nodes</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="width: 30px; height: 17px; border-radius: 999px; background: #262b38; display: flex; align-items: center; padding: 0 3px;"><div style="width: 11px; height: 11px; border-radius: 999px; background: #565d72;"></div></div>
+          <span style="font-size: 12px; color: #6b7284;">Inactive</span>
+        </div>
+        <span style="font-size: 12.5px; color: #565d72;">Never run</span>
+        <span style="font-size: 12.5px; color: #565d72;">&mdash;</span>
+        <span style="font-size: 12.5px; color: #8a90a2;">2 weeks ago</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#6b7284"><circle cx="12" cy="5" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="12" cy="19" r="1.6"></circle></svg>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Studio dark — the approved design direction. Every colour, radius and font
+   in the app comes from here; components never hardcode a hex value.
+   --------------------------------------------------------------------------- */
+
+@theme {
+  --color-surface: #0b0d12;
+  --color-panel: #12151c;
+  --color-raised: #161a23;
+  --color-raised-2: #171b25;
+  --color-input: #1a1e28;
+
+  --color-line: rgba(255, 255, 255, 0.06);
+  --color-line-strong: rgba(255, 255, 255, 0.1);
+
+  --color-ink: #e8eaf0;
+  --color-ink-2: #b9bfcf;
+  --color-ink-3: #8a90a2;
+  --color-ink-4: #6b7284;
+  --color-ink-5: #565d72;
+  --color-ink-6: #3b415a;
+
+  --color-accent: #8b5cf6;
+  --color-accent-2: #a78bfa;
+  --color-accent-3: #c4b5fd;
+  --color-accent-deep: #6d4aff;
+
+  --color-success: #34d399;
+  --color-danger: #f87171;
+  --color-danger-2: #d98b8b;
+  --color-danger-3: #f0a8a8;
+  --color-warning: #fbbf24;
+
+  --color-json-key: #a78bfa;
+  --color-json-string: #7dd3a8;
+  --color-json-number: #fbbf24;
+  --color-json-punct: #6b7284;
+
+  --radius-control: 0.625rem;
+  --radius-card: 0.875rem;
+
+  --font-sans: Manrope, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --shadow-panel: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-modal: 0 32px 90px rgba(0, 0, 0, 0.7);
+  --shadow-accent: 0 6px 20px rgba(139, 92, 246, 0.32);
+}
+
+* {
+  border-color: var(--color-line);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-accent-2);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--color-accent-3);
+}
+
+::placeholder {
+  color: var(--color-ink-4);
+}
+
+/* Canvas backdrop: the dotted grid from the approved editor mockup. */
+.canvas-dots {
+  background-color: var(--color-surface);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+}
+
+/* Scrollbars, so panels do not sprout a bright native bar. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2b3040 transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #2b3040;
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* React Flow overrides: the library's light defaults must not leak through. */
+.react-flow__edge-path {
+  stroke: var(--color-accent);
+  stroke-width: 2;
+}
+.react-flow__edge.is-muted .react-flow__edge-path {
+  stroke: #2b3040;
+  stroke-dasharray: 5 6;
+}
+.react-flow__edge.is-success .react-flow__edge-path {
+  stroke: var(--color-success);
+}
+.react-flow__edge.is-error .react-flow__edge-path {
+  stroke: var(--color-danger);
+}
+.react-flow__handle {
+  width: 11px;
+  height: 11px;
+  border: 2px solid var(--color-surface);
+  background: var(--color-ink-5);
+}
+.react-flow__handle-connecting {
+  background: var(--color-accent);
+}
+.react-flow__attribution {
+  display: none;
+}
+.react-flow__controls-button {
+  background: var(--color-raised);
+  border-bottom: 1px solid var(--color-line);
+  fill: var(--color-ink-3);
+}
+.react-flow__minimap {
+  background: rgba(18, 21, 28, 0.9);
+  border: 1px solid var(--color-line);
+  border-radius: 11px;
+}

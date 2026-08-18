@@ -82,7 +82,7 @@ func toolOnlyNodes(g domain.Graph) map[string]bool {
 }
 
 // bindTools builds the invocable tools for one node.
-func (r *run) bindTools(runCtx context.Context, consumer domain.GraphNode) []nodes.ToolBinding {
+func (r *run) bindTools(consumer domain.GraphNode) []nodes.ToolBinding {
 	providerIDs := r.toolProviders[consumer.ID]
 	if len(providerIDs) == 0 {
 		return nil
@@ -104,7 +104,7 @@ func (r *run) bindTools(runCtx context.Context, consumer domain.GraphNode) []nod
 			// The description defaults to the node type's own, and the consuming
 			// node overlays whatever its author wrote.
 			Description: impl.Descriptor().Description,
-			Invoke:      r.toolInvoker(runCtx, provider, impl),
+			Invoke:      r.toolInvoker(provider, impl),
 		})
 	}
 	return out
@@ -115,7 +115,13 @@ func (r *run) bindTools(runCtx context.Context, consumer domain.GraphNode) []nod
 // The call goes through executeNode, so a tool gets the same retry, timeout and
 // panic handling as any other node — an agent's tools are not a second-class
 // execution path.
-func (r *run) toolInvoker(runCtx context.Context, node domain.GraphNode, impl nodes.Node) func(context.Context, map[string]any) ([]domain.Item, error) {
+//
+// The context comes from the caller and nothing else. The consuming node's
+// context already descends from the run budget plus that node's own timeout, so
+// it is strictly the tighter of the two: substituting the run context here would
+// silently let a tool outlive the agent that asked for it, and let a cancelled
+// agent keep invoking tools.
+func (r *run) toolInvoker(node domain.GraphNode, impl nodes.Node) func(context.Context, map[string]any) ([]domain.Item, error) {
 	desc := impl.Descriptor()
 
 	return func(ctx context.Context, args map[string]any) ([]domain.Item, error) {
@@ -124,17 +130,18 @@ func (r *run) toolInvoker(runCtx context.Context, node domain.GraphNode, impl no
 		// in the main flow sees.
 		input := []domain.Item{domain.NewItem(args)}
 
+		// A caller that has already given up must not start more work, and a call
+		// that never happened must not advance the counter.
+		if err := ctx.Err(); err != nil {
+			return nil, domain.Errorf(domain.ErrCodeCancelled,
+				"the tool %q was not called: %s", node.Name, err.Error())
+		}
+
 		startedAt := r.e.opts.Now()
 		call := r.toolCallCount[node.ID] + 1
 		r.toolCallCount[node.ID] = call
 
-		// Honour the run's own deadline, not just the caller's.
-		effective := ctx
-		if runCtx != nil {
-			effective = runCtx
-		}
-
-		result, attempts, nerr := executeNode(effective, nodeCall{
+		result, attempts, nerr := executeNode(ctx, nodeCall{
 			impl:        impl,
 			desc:        desc,
 			node:        node,
@@ -159,7 +166,10 @@ func (r *run) toolInvoker(runCtx context.Context, node domain.GraphNode, impl no
 		// unique on (execution, node), so a per-call history would need a schema
 		// change; the agent's own transcript carries every call, and the row's
 		// job here is to colour the card and show the last arguments.
-		if err := r.persistToolCall(ctx, node, status, input, outputs, nerr,
+		// Persistence uses the bookkeeping context: if this tool just timed out,
+		// the execution context is the one that expired, and the row explaining
+		// why is exactly what a person needs to see.
+		if err := r.persistToolCall(r.persistCtx(ctx), node, status, input, outputs, nerr,
 			attempts, call, startedAt, finishedAt); err != nil {
 			return nil, err
 		}
@@ -169,6 +179,16 @@ func (r *run) toolInvoker(runCtx context.Context, node domain.GraphNode, impl no
 		}
 		return result.Outputs[domain.MainHandle], nil
 	}
+}
+
+// persistCtx is the context to write rows with: the run's bookkeeping context
+// when there is one, and otherwise the caller's, which keeps RunNodeOnce and the
+// tests working without a full run around them.
+func (r *run) persistCtx(fallback context.Context) context.Context {
+	if r.bookkeeping != nil {
+		return r.bookkeeping
+	}
+	return fallback
 }
 
 func (r *run) persistToolCall(ctx context.Context, node domain.GraphNode, status domain.Status,

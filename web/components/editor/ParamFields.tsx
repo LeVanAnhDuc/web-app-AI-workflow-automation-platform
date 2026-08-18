@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import { Field, IconButton, Input, Select, Textarea, Toggle } from "@/components/ui";
 import { Icons } from "@/components/ui/icons";
+import { keyValuePairs, type KeyValuePair } from "@/lib/graph";
 import type { ParamSpec } from "@/lib/types";
 
 /* ---------------------------------------------------------------------------
@@ -37,10 +38,8 @@ export interface FilterCondition {
   right: string;
 }
 
-export interface KeyValueRow {
-  key: string;
-  value: string;
-}
+/** The `keyValue` row shape, parsed in lib/graph so validation shares it. */
+export type KeyValueRow = KeyValuePair;
 
 export function ParamField({
   spec,
@@ -56,10 +55,14 @@ export function ParamField({
   preview: (template: string) => string | null;
 }) {
   if (spec.Type === "notice") {
+    // A notice carries no value, so descriptors are free to put its prose in
+    // whichever field reads best — Default is where the Go side usually puts it.
+    const text = spec.Description || asText(spec.Default) || spec.Label;
+    if (!text) return null;
     return (
       <div className="flex items-start gap-2.5 rounded-[10px] border border-line bg-white/3 px-3.5 py-3">
         <Icons.info size={14} className="mt-px shrink-0 text-ink-4" />
-        <p className="text-xs leading-relaxed text-ink-3">{spec.Description || spec.Label}</p>
+        <p className="text-xs leading-relaxed text-ink-3">{text}</p>
       </div>
     );
   }
@@ -402,23 +405,7 @@ function asText(value: unknown): string {
 }
 
 function asKeyValues(value: unknown): KeyValueRow[] {
-  if (Array.isArray(value)) {
-    return value.map((row) => {
-      if (typeof row !== "object" || row === null) return { key: "", value: String(row ?? "") };
-      const r = row as Record<string, unknown>;
-      return {
-        key: String(r.key ?? r.name ?? ""),
-        value: String(r.value ?? ""),
-      };
-    });
-  }
-  if (value && typeof value === "object") {
-    return Object.entries(value as Record<string, unknown>).map(([key, v]) => ({
-      key,
-      value: String(v ?? ""),
-    }));
-  }
-  return [];
+  return keyValuePairs(value);
 }
 
 function asConditions(value: unknown): FilterCondition[] {

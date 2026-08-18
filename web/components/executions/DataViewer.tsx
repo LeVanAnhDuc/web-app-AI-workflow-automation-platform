@@ -2,18 +2,26 @@
 
 import { useEffect, useState } from "react";
 import clsx from "clsx";
+import { AgentTranscriptView } from "@/components/agent/AgentTranscript";
+import { agentTranscriptOf } from "@/components/agent/transcript";
 import { JsonView, SectionLabel, Segmented } from "@/components/ui";
 import { Icons } from "@/components/ui/icons";
 import { clockTime } from "@/lib/format";
 import type { Graph, GraphNode, Item, NodeExecution } from "@/lib/types";
 import type { TimelineRow } from "./timeline";
 
-type View = "table" | "json";
+type View = "table" | "json" | "agent";
 
-const viewOptions: { value: View; label: string }[] = [
+type ViewOption = { value: View; label: string };
+
+const viewOptions: ViewOption[] = [
   { value: "table", label: "Table" },
   { value: "json", label: "JSON" },
 ];
+
+/** The agent transcript leads, because on an agent item it is the whole story —
+ *  but Table and JSON stay beside it, so no field is ever hidden. */
+const agentViewOptions: ViewOption[] = [{ value: "agent", label: "Agent" }, ...viewOptions];
 
 /**
  * Input on the left, Output (or Error) on the right — two panes side by side
@@ -130,24 +138,43 @@ function ItemsPane({
   extra?: React.ReactNode;
   borderRight?: boolean;
 }) {
-  const [view, setView] = useState<View>("table");
+  // null means "whatever suits this item": an explicit click sticks, and a new
+  // node clears it so an agent item opens on its transcript.
+  const [chosen, setChosen] = useState<View | null>(null);
   const [index, setIndex] = useState(0);
 
   // A different node — or a live update — can shrink the item list underneath
   // the pager, so the cursor is pulled back into range.
-  useEffect(() => setIndex(0), [resetKey]);
+  useEffect(() => {
+    setIndex(0);
+    setChosen(null);
+  }, [resetKey]);
   const safeIndex = Math.min(index, Math.max(0, items.length - 1));
   const item = items[safeIndex];
+
+  const transcript = agentTranscriptOf(item);
+  const options = transcript ? agentViewOptions : viewOptions;
+  const view: View =
+    chosen && options.some((o) => o.value === chosen) ? chosen : options[0].value;
 
   return (
     <section
       className={clsx("flex min-w-0 flex-col overflow-hidden", borderRight && "border-r border-line")}
     >
-      <PaneHeader title={title} meta={meta} extra={extra} view={view} onView={setView} />
+      <PaneHeader
+        title={title}
+        meta={meta}
+        extra={extra}
+        view={view}
+        options={options}
+        onView={setChosen}
+      />
 
       <div className="min-w-0 grow overflow-auto px-[18px] py-3">
         {!item ? (
           <p className="py-6 text-center text-xs text-ink-5">Nothing to show.</p>
+        ) : view === "agent" && transcript ? (
+          <AgentTranscriptView transcript={transcript} />
         ) : view === "table" ? (
           <FieldTable item={item} />
         ) : (
@@ -256,6 +283,7 @@ function PaneHeader({
   extra,
   tone = "default",
   view,
+  options = viewOptions,
   onView,
 }: {
   title: string;
@@ -263,6 +291,7 @@ function PaneHeader({
   extra?: React.ReactNode;
   tone?: "default" | "danger";
   view: View;
+  options?: ViewOption[];
   onView: (next: View) => void;
 }) {
   return (
@@ -278,7 +307,7 @@ function PaneHeader({
       <span className="truncate text-[11.5px] text-ink-4">{meta}</span>
       {extra}
       <div className="grow" />
-      <Segmented value={view} options={viewOptions} onChange={onView} size="sm" />
+      <Segmented value={view} options={options} onChange={onView} size="sm" />
     </div>
   );
 }

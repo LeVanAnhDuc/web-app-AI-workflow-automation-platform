@@ -1,14 +1,19 @@
 import { describe, expect, it } from "vitest";
 import {
+  acceptsTools,
   failedNode,
   fromFlow,
   hasCycle,
   isParamVisible,
+  isToolEdge,
+  isToolOnlyNode,
+  keyValuePairs,
   newNodeId,
   nextPosition,
   nodeFromDescriptor,
   runtimeFromExecutions,
   toFlow,
+  toolProvidersOf,
   uniqueNodeName,
   upstreamNames,
   validateGraph,
@@ -62,7 +67,53 @@ const triggerDescriptor: NodeDescriptor = {
   IsTrigger: true,
 };
 
-const descriptors = { set: setDescriptor, "trigger.manual": triggerDescriptor };
+/** A node with no required params, so a tool-wiring test reports only tool problems. */
+const httpDescriptor: NodeDescriptor = {
+  ...setDescriptor,
+  Type: "http.request",
+  Name: "HTTP Request",
+  Icon: "globe",
+  Params: [],
+};
+
+const agentDescriptor: NodeDescriptor = {
+  Type: "ai.agent",
+  Name: "AI Agent",
+  Category: "AI",
+  Description: "Runs a model that can call the nodes wired to its tool input.",
+  Icon: "robot",
+  Mode: "perItem",
+  Inputs: [
+    { Name: "main", Label: "Input" },
+    { Name: "tool", Label: "Tools" },
+  ],
+  Outputs: [{ Name: "main", Label: "Output" }],
+  Params: [{ Name: "toolDescriptions", Label: "Tool descriptions", Type: "keyValue" }],
+  Credential: "anthropicApi",
+  IsTrigger: false,
+};
+
+const descriptors = {
+  set: setDescriptor,
+  "trigger.manual": triggerDescriptor,
+  "http.request": httpDescriptor,
+  "ai.agent": agentDescriptor,
+};
+
+/** Trigger to agent on main, plus one node wired into the agent tool handle. */
+function agentGraph(params: Record<string, unknown> = {}): Graph {
+  return {
+    nodes: [
+      node("n1", "Start", "trigger.manual"),
+      { ...node("n2", "Agent", "ai.agent"), params },
+      node("n3", "Fetch profile", "http.request"),
+    ],
+    edges: [
+      { id: "e1", source: "n1", sourceHandle: "main", target: "n2", targetHandle: "main" },
+      { id: "e2", source: "n3", sourceHandle: "main", target: "n2", targetHandle: "tool" },
+    ],
+  };
+}
 
 describe("toFlow / fromFlow", () => {
   const graph: Graph = {
@@ -370,5 +421,146 @@ describe("upstreamNames", () => {
       ],
     };
     expect(upstreamNames(loop, "n2").sort()).toEqual(["A", "B"]);
+  });
+});
+
+describe("tool edges", () => {
+  it("recognises a tool edge by its target handle, defaulting to main", () => {
+    expect(isToolEdge({ targetHandle: "tool" })).toBe(true);
+    expect(isToolEdge({ targetHandle: "main" })).toBe(false);
+    expect(isToolEdge({ targetHandle: "" })).toBe(false);
+  });
+
+  it("lists the nodes wired into a tool handle, once each", () => {
+    const graph = agentGraph();
+    graph.edges.push({
+      id: "e3",
+      source: "n3",
+      sourceHandle: "main",
+      target: "n2",
+      targetHandle: "tool",
+    });
+    expect(toolProvidersOf(graph, "n2").map((n) => n.name)).toEqual(["Fetch profile"]);
+    expect(toolProvidersOf(graph, "n1")).toEqual([]);
+  });
+
+  it("reads the tool input off the descriptor", () => {
+    expect(acceptsTools(agentDescriptor)).toBe(true);
+    expect(acceptsTools(setDescriptor)).toBe(false);
+    expect(acceptsTools(undefined)).toBe(false);
+  });
+
+  it("calls a node tool-only when nothing feeds it and it only offers tools", () => {
+    const graph = agentGraph();
+    expect(isToolOnlyNode(graph, "n3")).toBe(true);
+    // The agent has no outgoing edge at all, so it is a leaf, not a tool.
+    expect(isToolOnlyNode(graph, "n2")).toBe(false);
+    // The trigger feeds the agent data, so its edge is not a tool edge.
+    expect(isToolOnlyNode(graph, "n1")).toBe(false);
+  });
+
+  it("stops calling a node tool-only once it also sits in the main flow", () => {
+    const graph = agentGraph();
+    graph.edges.push({
+      id: "e3",
+      source: "n1",
+      sourceHandle: "main",
+      target: "n3",
+      targetHandle: "main",
+    });
+    expect(isToolOnlyNode(graph, "n3")).toBe(false);
+  });
+
+  it("marks and labels a tool edge so the canvas can draw it differently", () => {
+    const { edges } = toFlow(agentGraph(), { descriptors });
+    const tool = edges.find((e) => e.id === "e2");
+    expect(tool?.className).toBe("is-tool");
+    expect(tool?.label).toBe("tool");
+    expect(edges.find((e) => e.id === "e1")?.label).toBeUndefined();
+  });
+
+  it("keeps run colour off a tool edge, which does not carry the run", () => {
+    const { edges } = toFlow(agentGraph(), {
+      descriptors,
+      runtime: { n1: { status: "succeeded" }, n3: { status: "succeeded" } },
+    });
+    expect(edges.find((e) => e.id === "e2")?.className).toBe("is-tool");
+    expect(edges.find((e) => e.id === "e1")?.className).toBe("is-success");
+  });
+
+  it("does not treat a tool provider as upstream of the agent", () => {
+    expect(upstreamNames(agentGraph(), "n2")).toEqual(["Start"]);
+  });
+});
+
+describe("validateGraph with tools", () => {
+  const described = { toolDescriptions: [{ key: "Fetch profile", value: "Looks a customer up" }] };
+
+  it("accepts a tool-only node: it is neither unreachable nor a second trigger", () => {
+    expect(validateGraph(agentGraph(described), descriptors)).toEqual([]);
+    expect(hasCycle(agentGraph(described))).toBe(false);
+  });
+
+  it("refuses a tool edge into a node that takes no tools", () => {
+    const graph: Graph = {
+      nodes: [
+        node("n1", "Start", "trigger.manual"),
+        { ...node("n2", "Shape"), params: { fields: [{ key: "a", value: "b" }] } },
+        node("n3", "Fetch profile", "http.request"),
+      ],
+      edges: [
+        { id: "e1", source: "n1", sourceHandle: "main", target: "n2", targetHandle: "main" },
+        { id: "e2", source: "n3", sourceHandle: "main", target: "n2", targetHandle: "tool" },
+      ],
+    };
+    expect(validateGraph(graph, descriptors)).toContain(
+      "Node \u201cShape\u201d does not take tools, so the tool connection from \u201cFetch profile\u201d would be ignored.",
+    );
+  });
+
+  it("asks for a description for every wired tool", () => {
+    expect(validateGraph(agentGraph(), descriptors)).toContain(
+      "Node \u201cAgent\u201d needs a tool description for \u201cFetch profile\u201d; " +
+        "the model chooses tools by their description.",
+    );
+  });
+
+  it("treats a blank description as no description", () => {
+    const blank = { toolDescriptions: [{ key: "Fetch profile", value: "   " }] };
+    expect(validateGraph(agentGraph(blank), descriptors).join(" ")).toContain(
+      "needs a tool description",
+    );
+  });
+
+  it("ignores a description whose key matches no wired tool", () => {
+    const stale = {
+      toolDescriptions: [
+        { key: "Fetch profil", value: "typo in the node name" },
+        { key: "Fetch profile", value: "Looks a customer up" },
+      ],
+    };
+    expect(validateGraph(agentGraph(stale), descriptors)).toEqual([]);
+  });
+
+  it("says nothing about an agent with no tools wired in", () => {
+    const graph: Graph = {
+      nodes: [node("n1", "Start", "trigger.manual"), node("n2", "Agent", "ai.agent")],
+      edges: [
+        { id: "e1", source: "n1", sourceHandle: "main", target: "n2", targetHandle: "main" },
+      ],
+    };
+    expect(validateGraph(graph, descriptors)).toEqual([]);
+  });
+});
+
+describe("keyValuePairs", () => {
+  it("reads the rows the editor writes", () => {
+    expect(keyValuePairs([{ key: "a", value: "1" }])).toEqual([{ key: "a", value: "1" }]);
+  });
+
+  it("copes with a hand-written object and with junk", () => {
+    expect(keyValuePairs({ a: "1" })).toEqual([{ key: "a", value: "1" }]);
+    expect(keyValuePairs(undefined)).toEqual([]);
+    expect(keyValuePairs("nonsense")).toEqual([]);
   });
 });

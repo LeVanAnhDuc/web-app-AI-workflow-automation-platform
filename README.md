@@ -90,6 +90,8 @@ renders its whole configuration form from the descriptor the API returns.
 | Workflow list | Execution detail, with the read-only graph replay |
 | ![Node picker](docs/screenshots/node-picker.png) | ![Executions](docs/screenshots/executions.png) |
 | Node picker, driven by the keyboard | Execution history |
+| ![Agent editor](docs/screenshots/agent-editor.png) | ![Agent transcript](docs/screenshots/agent-transcript.png) |
+| An agent with a node wired into its tool handle | The transcript: every turn and tool call |
 
 ## Layout
 

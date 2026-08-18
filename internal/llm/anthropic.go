@@ -116,8 +116,8 @@ func (a *Anthropic) params(req Request) (anthropic.MessageNewParams, error) {
 			// required and additionalProperties are not first-class fields on
 			// the SDK's schema param, so they ride along as extra fields.
 			extra := map[string]any{}
-			if req, ok := schema["required"]; ok {
-				extra["required"] = req
+			if required, ok := schema["required"]; ok {
+				extra["required"] = required
 			}
 			if ap, ok := schema["additionalProperties"]; ok {
 				extra["additionalProperties"] = ap

@@ -1,18 +1,32 @@
 "use client";
 
 import clsx from "clsx";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
+import { AgentOutputView } from "@/components/agent/AgentTranscript";
+import { hasAgentTranscript } from "@/components/agent/transcript";
 import { Button, ErrorNotice, Field, IconButton, Input, JsonView, Toggle } from "@/components/ui";
 import { Icons, NodeIcon } from "@/components/ui/icons";
 import { nodeTypes } from "@/lib/api";
 import { useEditorStore } from "@/lib/editorStore";
 import { previewExpression, hasExpression } from "@/lib/expressionPreview";
-import { isParamVisible, upstreamNames } from "@/lib/graph";
-import type { Item, NodeDescriptor, NodeExecution, NodeSettings } from "@/lib/types";
+import {
+  acceptsTools,
+  isParamVisible,
+  isToolOnlyNode,
+  keyValuePairs,
+  toolProvidersOf,
+  upstreamNames,
+  type KeyValuePair,
+} from "@/lib/graph";
+import type { Graph, GraphNode, Item, NodeDescriptor, NodeExecution, NodeSettings } from "@/lib/types";
 import { InlineEdit } from "./InlineEdit";
 import { ParamField } from "./ParamFields";
 
 type Tab = "parameters" | "settings" | "output";
+
+/** The `keyValue` param an agent names its tools in. Annotated rather than
+ *  special-cased: any node type declaring a tool input gets the same list. */
+const TOOL_DESCRIPTIONS_PARAM = "toolDescriptions";
 
 const tabs: { id: Tab; label: string }[] = [
   { id: "parameters", label: "Parameters" },
@@ -155,13 +169,28 @@ export function ConfigDrawer() {
               </ErrorNotice>
             )}
             {visibleParams.map((spec) => (
-              <ParamField
-                key={spec.Name}
-                spec={spec}
-                value={node.params[spec.Name]}
-                preview={preview}
-                onChange={(next) => setParam(node.id, spec.Name, next)}
-              />
+              <Fragment key={spec.Name}>
+                {/* Descriptions are keyed by node name, so the names actually
+                    wired in have to be visible while writing them. */}
+                {spec.Name === TOOL_DESCRIPTIONS_PARAM && acceptsTools(descriptor) && (
+                  <ToolWiring
+                    graph={graph}
+                    node={node}
+                    onDescribe={(name) =>
+                      setParam(node.id, TOOL_DESCRIPTIONS_PARAM, [
+                        ...keyValuePairs(node.params[TOOL_DESCRIPTIONS_PARAM]),
+                        { key: name, value: "" },
+                      ])
+                    }
+                  />
+                )}
+                <ParamField
+                  spec={spec}
+                  value={node.params[spec.Name]}
+                  preview={preview}
+                  onChange={(next) => setParam(node.id, spec.Name, next)}
+                />
+              </Fragment>
             ))}
             {descriptor && visibleParams.length === 0 && (
               <p className="text-xs text-ink-4">This node has nothing to configure.</p>
@@ -323,16 +352,98 @@ function OutputTab({
   return (
     <>
       {handles.map(([handle, items]) => (
-        <div key={handle} className="flex flex-col gap-2">
+        <div key={handle} className="flex min-w-0 flex-col gap-2">
           {handles.length > 1 && (
             <span className="font-mono text-[10.5px] text-ink-4">
               {handle} · {items.length} item{items.length === 1 ? "" : "s"}
             </span>
           )}
-          <JsonView value={items.map((i) => i.json)} className="max-h-[420px]" />
+          {/* An agent item is mostly transcript, so it gets the reader that can
+              show it; everything else stays the compact JSON array. */}
+          {hasAgentTranscript(items) ? (
+            items.map((item, i) => (
+              <div key={i} className="flex min-w-0 flex-col gap-1.5">
+                {items.length > 1 && (
+                  <span className="font-mono text-[10.5px] text-ink-5">item {i + 1}</span>
+                )}
+                <AgentOutputView item={item} className="max-h-[420px]" />
+              </div>
+            ))
+          ) : (
+            <JsonView value={items.map((i) => i.json)} className="max-h-[420px]" />
+          )}
         </div>
       ))}
     </>
+  );
+}
+
+/**
+ * The nodes wired into this node tool handle, next to the editor that has to
+ * name them. Without it the author is describing tools from memory, and a key
+ * that matches no node name is silently ignored at run time.
+ */
+function ToolWiring({
+  graph,
+  node,
+  onDescribe,
+}: {
+  graph: Graph;
+  node: GraphNode;
+  onDescribe: (name: string) => void;
+}) {
+  const providers = toolProvidersOf(graph, node.id);
+  const rows: KeyValuePair[] = keyValuePairs(node.params[TOOL_DESCRIPTIONS_PARAM]);
+
+  if (providers.length === 0) {
+    return (
+      <div className="rounded-[10px] border border-dashed border-line-strong px-3.5 py-3">
+        <p className="text-[11.5px] leading-relaxed text-ink-4">
+          Nothing is wired to the Tools input. Drag a connection from another node output onto
+          the square handle under this card and it becomes a tool this node can call.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2 rounded-[10px] border border-line bg-white/3 px-3 py-2.5">
+      <span className="text-[11px] font-bold tracking-[0.06em] text-ink-5">
+        WIRED TO THE TOOLS INPUT
+      </span>
+      <ul className="flex flex-col gap-1.5">
+        {providers.map((provider) => {
+          const row = rows.find((r) => r.key === provider.name);
+          const described = Boolean(row && row.value.trim() !== "");
+          return (
+            <li key={provider.id} className="flex items-center gap-2">
+              <span className="truncate font-mono text-[11.5px] text-ink-2">{provider.name}</span>
+              <span className="shrink-0 font-mono text-[10px] text-ink-5">
+                {isToolOnlyNode(graph, provider.id) ? "tool only" : "also in the flow"}
+              </span>
+              {described ? (
+                <span className="ml-auto shrink-0 font-mono text-[10px] text-success">
+                  described
+                </span>
+              ) : row ? (
+                <span className="ml-auto shrink-0 font-mono text-[10px] text-warning">
+                  needs a description
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => onDescribe(provider.name)}
+                  aria-label={`Add a description row for ${provider.name}`}
+                  className="ml-auto shrink-0 rounded-md bg-accent/14 px-2 py-[2px] text-[10.5px] font-semibold text-accent-2 hover:bg-accent/22 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent"
+                >
+                  + describe
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
 

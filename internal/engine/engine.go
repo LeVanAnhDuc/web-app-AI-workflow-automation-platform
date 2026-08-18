@@ -165,6 +165,11 @@ type run struct {
 	toolProviders map[string][]string
 	toolOnly      map[string]bool
 	toolCallCount map[string]int
+
+	// bookkeeping is the context used for persistence, as opposed to the one
+	// bounding execution. A node or tool that times out must still get its row
+	// written, and the execution context is exactly the one that just expired.
+	bookkeeping context.Context
 }
 
 // nodeOutputs is the name-keyed output map expressions resolve against.
@@ -209,6 +214,7 @@ func (r *run) rehydrate(ctx context.Context) error {
 // is the caller's context (its cancellation means "shutting down, resume
 // later"), runCtx adds the execution timeout.
 func (r *run) loop(ctx, runCtx context.Context) error {
+	r.bookkeeping = ctx
 	for {
 		if err := ctx.Err(); err != nil {
 			// Worker shutdown: leave the execution running so the job's next
@@ -326,7 +332,7 @@ func (r *run) step(ctx, runCtx context.Context, node domain.GraphNode) (bool, er
 		input:       input,
 		inputs:      inputs,
 		nodeOutputs: r.byName,
-		tools:       r.bindTools(runCtx, node),
+		tools:       r.bindTools(node),
 		trigger:     r.trigger,
 		executionID: r.exec.ID,
 		opts:        r.e.opts,

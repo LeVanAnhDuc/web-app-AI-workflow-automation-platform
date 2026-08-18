@@ -2,25 +2,13 @@
 
 import clsx from "clsx";
 import { useMemo, useState } from "react";
-import { Badge, Input, SectionLabel } from "@/components/ui";
+import { Input, SectionLabel } from "@/components/ui";
 import { Icons, NodeIcon } from "@/components/ui/icons";
 import type { NodeDescriptor } from "@/lib/types";
 
 /** Drag payload the canvas listens for. A private MIME type so a stray drag
  *  from elsewhere in the page cannot create a node. */
 export const NODE_DND_MIME = "application/x-flowgrid-node-type";
-
-/**
- * Phase 2 nodes have no descriptor yet. The mockup still shows them, dimmed,
- * because an empty AI section answers "where will the LLM node live?" before a
- * user has to ask.
- */
-const phase2 = [
-  { name: "LLM", icon: "sparkle" },
-  { name: "AI Agent", icon: "robot" },
-];
-
-const AI_CATEGORY = "AI";
 
 interface Group {
   category: string;
@@ -38,9 +26,6 @@ export function NodePalette({
   const term = query.trim().toLowerCase();
 
   const groups = useMemo(() => groupByCategory(descriptors, term), [descriptors, term]);
-  const showPhase2 =
-    !groups.some((g) => g.category === AI_CATEGORY) &&
-    phase2.some((p) => p.name.toLowerCase().includes(term));
 
   return (
     <aside className="flex w-60 shrink-0 flex-col gap-1 overflow-y-auto border-r border-line bg-panel px-3 py-3.5">
@@ -69,27 +54,7 @@ export function NodePalette({
         </div>
       ))}
 
-      {showPhase2 && (
-        <div className="flex flex-col gap-0.5">
-          <div className="px-3 pb-1.5 pt-3">
-            <SectionLabel>AI</SectionLabel>
-          </div>
-          {phase2.map((p) => (
-            <div
-              key={p.name}
-              aria-disabled
-              title="Available in phase 2"
-              className="flex items-center gap-[11px] rounded-[10px] px-3 py-[9px] text-ink-5"
-            >
-              <NodeIcon name={p.icon} size={15} />
-              <span className="text-[13px]">{p.name}</span>
-              <Badge className="ml-auto text-[10px]">P2</Badge>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {groups.length === 0 && !showPhase2 && (
+      {groups.length === 0 && (
         <p className="px-3 py-6 text-center text-xs text-ink-4">
           No node matches “{query}”.
         </p>

@@ -16,6 +16,16 @@ import { defaultNodeSettings } from "./types";
    only — no React, no fetching — so they are cheap to unit-test.
    --------------------------------------------------------------------------- */
 
+/**
+ * The input handle a node declares to accept tools. An edge into it is a
+ * *capability* edge, not a data edge: nothing pushes items along it, and the
+ * consuming node calls the source on demand instead. Mirrors nodes.HandleTool.
+ */
+export const TOOL_HANDLE = "tool";
+
+/** The type of the node that consumes tools, for the checks only it needs. */
+export const AI_AGENT_TYPE = "ai.agent";
+
 export interface FlowNodeData extends Record<string, unknown> {
   node: GraphNode;
   descriptor?: NodeDescriptor;
@@ -70,20 +80,60 @@ export function toFlow(graph: Graph, opts: ToFlowOptions = {}): { nodes: FlowNod
   const edges: FlowEdge[] = graph.edges.map((e) => {
     const sourceStatus = runtime[e.source]?.status;
     const targetStatus = runtime[e.target]?.status;
+    const tool = isToolEdge(e);
+    // A tool edge never carries the run's colour: the source is called by the
+    // agent, so "succeeded green pointing at the agent" would read backwards.
+    const status = tool ? undefined : edgeClass(sourceStatus, targetStatus);
     return {
       id: e.id,
       source: e.source,
       sourceHandle: e.sourceHandle || "main",
       target: e.target,
       targetHandle: e.targetHandle || "main",
-      className: edgeClass(sourceStatus, targetStatus),
-      label: branchLabel(e.sourceHandle),
+      className: [tool ? "is-tool" : undefined, status].filter(Boolean).join(" ") || undefined,
+      label: tool ? TOOL_HANDLE : branchLabel(e.sourceHandle),
       deletable: !readOnly,
       focusable: !readOnly,
     };
   });
 
   return { nodes, edges };
+}
+
+/** Whether an edge grants a tool rather than carrying data. */
+export function isToolEdge(edge: Pick<GraphEdge, "targetHandle">): boolean {
+  return (edge.targetHandle || "main") === TOOL_HANDLE;
+}
+
+/** The nodes wired into a node's tool handle, in the order they were connected. */
+export function toolProvidersOf(graph: Graph, nodeId: string): GraphNode[] {
+  const byId = new Map(graph.nodes.map((n) => [n.id, n]));
+  const out: GraphNode[] = [];
+  const seen = new Set<string>();
+  for (const e of graph.edges) {
+    if (e.target !== nodeId || !isToolEdge(e) || seen.has(e.source)) continue;
+    const provider = byId.get(e.source);
+    if (!provider) continue;
+    seen.add(e.source);
+    out.push(provider);
+  }
+  return out;
+}
+
+/** Whether a node type declares a tool input, so a tool edge into it does something. */
+export function acceptsTools(descriptor: NodeDescriptor | undefined): boolean {
+  return (descriptor?.Inputs ?? []).some((h) => h.Name === TOOL_HANDLE);
+}
+
+/**
+ * A node that exists only to be called as a tool: nothing feeds it, and its
+ * only outgoing edges are tool edges. The engine neither runs nor skips such a
+ * node, so the editor must not treat it as a dead end either.
+ */
+export function isToolOnlyNode(graph: Graph, nodeId: string): boolean {
+  const outgoing = graph.edges.filter((e) => e.source === nodeId);
+  if (outgoing.length === 0 || !outgoing.every(isToolEdge)) return false;
+  return !graph.edges.some((e) => e.target === nodeId && !isToolEdge(e));
 }
 
 function edgeClass(source?: Status, target?: Status): string | undefined {
@@ -214,7 +264,79 @@ export function validateGraph(graph: Graph, descriptors: Record<string, NodeDesc
     }
   }
 
+  problems.push(...toolProblems(graph, descriptors));
+
   return problems;
+}
+
+/**
+ * The tool-wiring problems, which the engine also refuses — but at run time,
+ * once the author has already paid for a failed execution.
+ */
+function toolProblems(graph: Graph, descriptors: Record<string, NodeDescriptor>): string[] {
+  const problems: string[] = [];
+  const byId = new Map(graph.nodes.map((n) => [n.id, n]));
+
+  for (const e of graph.edges) {
+    if (!isToolEdge(e)) continue;
+    const target = byId.get(e.target);
+    const descriptor = target ? descriptors[target.type] : undefined;
+    // An unknown or dangling target is already reported; saying it twice in
+    // different words would only make the list harder to read.
+    if (!target || !descriptor || acceptsTools(descriptor)) continue;
+    const source = byId.get(e.source)?.name ?? e.source;
+    problems.push(
+      `Node “${target.name}” does not take tools, so the tool connection from “${source}” would be ignored.`,
+    );
+  }
+
+  for (const n of graph.nodes) {
+    if (n.type !== AI_AGENT_TYPE) continue;
+    const providers = toolProvidersOf(graph, n.id);
+    if (providers.length === 0) continue;
+
+    const described = new Set(
+      keyValuePairs(n.params.toolDescriptions)
+        .filter((row) => row.value.trim() !== "")
+        .map((row) => row.key),
+    );
+    const undescribed = providers.filter((p) => !described.has(p.name)).map((p) => `“${p.name}”`);
+    if (undescribed.length > 0) {
+      problems.push(
+        `Node “${n.name}” needs a tool description for ${undescribed.join(", ")}; ` +
+          "the model chooses tools by their description.",
+      );
+    }
+  }
+
+  return problems;
+}
+
+export interface KeyValuePair {
+  key: string;
+  value: string;
+}
+
+/**
+ * Reads a `keyValue` param. Params come out of a jsonb column, so the shape is
+ * whatever an older graph or a hand edit left there: the rows the editor writes,
+ * or a plain object from someone who typed JSON.
+ */
+export function keyValuePairs(value: unknown): KeyValuePair[] {
+  if (Array.isArray(value)) {
+    return value.map((row) => {
+      if (typeof row !== "object" || row === null) return { key: "", value: String(row ?? "") };
+      const r = row as Record<string, unknown>;
+      return { key: String(r.key ?? r.name ?? ""), value: String(r.value ?? "") };
+    });
+  }
+  if (value && typeof value === "object") {
+    return Object.entries(value as Record<string, unknown>).map(([key, v]) => ({
+      key,
+      value: String(v ?? ""),
+    }));
+  }
+  return [];
 }
 
 /** Mirrors the ShowWhen rule the config drawer uses. */

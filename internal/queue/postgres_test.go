@@ -23,9 +23,10 @@ var (
 	migrateErr  error
 )
 
-// testKindPrefix marks the jobs these tests create. Claim is deliberately
-// kind-agnostic, so a test only ever asserts on rows carrying this prefix and
-// the helper clears leftovers from an interrupted run instead of the table.
+// testKindPrefix marks the jobs these tests create, and every claim is filtered
+// to it. Without that filter a worker running against the same scratch database
+// claims the test's job first — and the test's own claim would take that
+// worker's real jobs, which is worse.
 const testKindPrefix = "test."
 
 // testQueue connects to the database named by TEST_DATABASE_URL, skipping the
@@ -85,9 +86,12 @@ func jobRow(t *testing.T, q *Queue, id int64) (status string, attempt int, runAt
 
 // claimOurs claims a batch and returns only the job with the given id, so a
 // stray row in a shared database cannot make an assertion flaky.
-func claimOurs(t *testing.T, q *Queue, id int64) (Job, bool) {
+func claimOurs(t *testing.T, q *Queue, id int64, kinds ...string) (Job, bool) {
 	t.Helper()
-	jobs, err := q.Claim(context.Background(), 20)
+	if len(kinds) == 0 {
+		kinds = []string{testKindPrefix + KindExecution}
+	}
+	jobs, err := q.Claim(context.Background(), 20, kinds...)
 	require.NoError(t, err)
 	for _, j := range jobs {
 		if j.ID == id {
@@ -133,7 +137,7 @@ func TestEnqueueAtHoldsJobUntilDue(t *testing.T) {
 		time.Now().Add(time.Hour))
 	require.NoError(t, err)
 
-	_, ok := claimOurs(t, q, id)
+	_, ok := claimOurs(t, q, id, testKindPrefix+"future")
 	assert.False(t, ok, "a job scheduled for later is not due yet")
 }
 
@@ -143,7 +147,7 @@ func TestFailSchedulesBackoffRetry(t *testing.T) {
 
 	id, err := q.Enqueue(ctx, testKindPrefix+"retry", ExecutionPayload{ExecutionID: uuid.NewString()})
 	require.NoError(t, err)
-	_, ok := claimOurs(t, q, id)
+	_, ok := claimOurs(t, q, id, testKindPrefix+"retry")
 	require.True(t, ok)
 
 	before := time.Now()
@@ -156,7 +160,7 @@ func TestFailSchedulesBackoffRetry(t *testing.T) {
 	assert.Equal(t, "upstream timed out", *lastError)
 	assert.WithinDuration(t, before.Add(Backoff(1)), runAt, 2*time.Second)
 
-	_, ok = claimOurs(t, q, id)
+	_, ok = claimOurs(t, q, id, testKindPrefix+"retry")
 	assert.False(t, ok, "the backoff must keep the job out of the next claim")
 }
 
@@ -169,7 +173,7 @@ func TestFailMarksJobDeadAfterLastAttempt(t *testing.T) {
 	_, err = q.pool.Exec(ctx, `UPDATE jobs SET max_attempts = 1 WHERE id = $1`, id)
 	require.NoError(t, err)
 
-	_, ok := claimOurs(t, q, id)
+	_, ok := claimOurs(t, q, id, testKindPrefix+"dead")
 	require.True(t, ok)
 	require.NoError(t, q.Fail(ctx, id, errors.New("permanently broken")))
 
@@ -179,7 +183,7 @@ func TestFailMarksJobDeadAfterLastAttempt(t *testing.T) {
 	require.NotNil(t, lastError)
 	assert.Equal(t, "permanently broken", *lastError)
 
-	_, ok = claimOurs(t, q, id)
+	_, ok = claimOurs(t, q, id, testKindPrefix+"dead")
 	assert.False(t, ok, "a dead job is never retried")
 }
 
@@ -189,7 +193,7 @@ func TestReleaseStaleRequeuesCrashedWorkerJobs(t *testing.T) {
 
 	id, err := q.Enqueue(ctx, testKindPrefix+"stale", ExecutionPayload{ExecutionID: uuid.NewString()})
 	require.NoError(t, err)
-	_, ok := claimOurs(t, q, id)
+	_, ok := claimOurs(t, q, id, testKindPrefix+"stale")
 	require.True(t, ok)
 
 	// Simulate the worker dying while holding the lock.
@@ -203,7 +207,7 @@ func TestReleaseStaleRequeuesCrashedWorkerJobs(t *testing.T) {
 	status, _, _, _ := jobRow(t, q, id)
 	assert.Equal(t, StatusPending, status)
 
-	_, ok = claimOurs(t, q, id)
+	_, ok = claimOurs(t, q, id, testKindPrefix+"stale")
 	assert.True(t, ok, "a released job is claimable again")
 }
 
@@ -227,7 +231,7 @@ func TestWorkRunsAndSettlesJobs(t *testing.T) {
 				return errors.New("handler said no")
 			}
 			return nil
-		})
+		}, testKindPrefix+"work-ok", testKindPrefix+"work-fail")
 	}()
 
 	seen := map[int64]bool{}

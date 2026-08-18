@@ -93,11 +93,15 @@ func (q *Queue) EnqueueAt(ctx context.Context, kind string, payload any, runAt t
 // lets several workers claim concurrently without blocking each other, and the
 // attempt counter is raised on claim so a worker that dies mid-job still
 // consumes one of its attempts.
+//
+// $3 is the kind filter: an empty array means every kind.
 const claimQuery = `
 UPDATE jobs SET status = 'running', attempt = attempt + 1, locked_at = now(), locked_by = $1
 WHERE id IN (
     SELECT id FROM jobs
-    WHERE status = 'pending' AND run_at <= now()
+    WHERE status = 'pending'
+      AND run_at <= now()
+      AND (cardinality($3::text[]) = 0 OR kind = ANY($3::text[]))
     ORDER BY run_at
     LIMIT $2
     FOR UPDATE SKIP LOCKED
@@ -105,11 +109,20 @@ WHERE id IN (
 RETURNING id, kind, payload, attempt, max_attempts, run_at`
 
 // Claim takes up to limit due jobs and marks them running.
-func (q *Queue) Claim(ctx context.Context, limit int) ([]Job, error) {
+//
+// Passing kinds restricts the claim to those job kinds. A worker should name
+// the kinds it can actually run: claiming a kind it does not understand takes
+// the job away from a worker that does, which is how a newly deployed job kind
+// would silently vanish against an older worker. It also lets tests claim only
+// their own work when something else is running on the same database.
+func (q *Queue) Claim(ctx context.Context, limit int, kinds ...string) ([]Job, error) {
 	if limit < 1 {
 		limit = 1
 	}
-	rows, err := q.pool.Query(ctx, claimQuery, q.workerID, limit)
+	if kinds == nil {
+		kinds = []string{}
+	}
+	rows, err := q.pool.Query(ctx, claimQuery, q.workerID, limit, kinds)
 	if err != nil {
 		return nil, fmt.Errorf("claim jobs: %w", err)
 	}
@@ -207,7 +220,10 @@ type Handler func(ctx context.Context, j Job) error
 // done, then waits for the in-flight ones and returns nil. Transient claim
 // errors are logged and retried on the next tick rather than killing the
 // worker, since a database blip must not take the process down.
-func (q *Queue) Work(ctx context.Context, concurrency int, pollInterval time.Duration, h Handler) error {
+//
+// kinds restricts what this worker claims; naming them is strongly preferred to
+// leaving it open. See Claim for why.
+func (q *Queue) Work(ctx context.Context, concurrency int, pollInterval time.Duration, h Handler, kinds ...string) error {
 	if concurrency < 1 {
 		concurrency = 1
 	}
@@ -229,7 +245,7 @@ func (q *Queue) Work(ctx context.Context, concurrency int, pollInterval time.Dur
 		free := cap(slots) - len(slots)
 		claimed := 0
 		if free > 0 {
-			jobs, err := q.Claim(ctx, free)
+			jobs, err := q.Claim(ctx, free, kinds...)
 			if err != nil {
 				if ctx.Err() != nil {
 					wg.Wait()

@@ -71,14 +71,10 @@ func run() error {
 
 	log.Info("worker: started", "id", workerID, "concurrency", cfg.WorkerConcurrency)
 
+	// Claiming only the kinds this binary understands means a job kind added by
+	// a newer deployment waits for a worker that can run it, rather than being
+	// taken and discarded by this one.
 	return q.Work(ctx, cfg.WorkerConcurrency, jobPollInterval, func(ctx context.Context, job queue.Job) error {
-		if job.Kind != queue.KindExecution {
-			// An unknown kind is a deployment skew, not a transient fault, so
-			// log it and let the queue mark it done rather than retry forever.
-			log.Warn("worker: ignoring unknown job kind", "kind", job.Kind, "job", job.ID)
-			return nil
-		}
-
 		var payload queue.ExecutionPayload
 		if err := json.Unmarshal(job.Payload, &payload); err != nil {
 			log.Error("worker: unreadable job payload", "job", job.ID, "error", err)
@@ -92,7 +88,7 @@ func run() error {
 			return fmt.Errorf("run execution %s: %w", payload.ExecutionID, err)
 		}
 		return nil
-	})
+	}, queue.KindExecution)
 }
 
 // tickSchedules turns due cron schedules into executions. Every worker runs

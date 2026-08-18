@@ -186,7 +186,7 @@ func (s *stack) drainQueue() {
 	s.t.Helper()
 
 	for range 10 {
-		jobs, err := s.queue.Claim(s.t.Context(), 5)
+		jobs, err := s.queue.Claim(s.t.Context(), 5, queue.KindExecution)
 		if err != nil {
 			s.t.Fatalf("claim: %v", err)
 		}

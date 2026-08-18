@@ -19,6 +19,7 @@ import (
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/api"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/auth"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/config"
+	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/llm"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/nodes"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/queue"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/store"
@@ -79,6 +80,7 @@ func run(migrateOnly bool) error {
 		Signer:   signer,
 		Config:   cfg,
 		Logger:   log,
+		LLM:      llm.FromAPIKey(cfg.AnthropicAPIKey, log),
 	})
 
 	srv := &http.Server{

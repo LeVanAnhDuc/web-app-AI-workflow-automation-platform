@@ -17,6 +17,7 @@ import (
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/config"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/domain"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/engine"
+	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/llm"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/nodes"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/queue"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/schedule"
@@ -64,6 +65,7 @@ func run() error {
 		},
 		Logger:           log,
 		ExecutionTimeout: cfg.ExecutionTimeout,
+		LLM:              llm.FromAPIKey(cfg.AnthropicAPIKey, log),
 	})
 
 	go tickSchedules(ctx, st, q, log)

@@ -18,6 +18,8 @@ var paletteOrder = []string{
 	"if",
 	"set",
 	"merge",
+	"llm.chat",
+	"ai.agent",
 }
 
 func TestDefaultRegistryOrder(t *testing.T) {

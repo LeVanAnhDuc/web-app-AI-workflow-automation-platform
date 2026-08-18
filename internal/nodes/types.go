@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/domain"
+	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/llm"
 )
 
 // ParamType is the editor a parameter renders as in the config drawer.
@@ -67,6 +68,11 @@ const (
 	HandleFalse  = "false"
 	HandleInput1 = "input1"
 	HandleInput2 = "input2"
+
+	// HandleTool is the second input of the AI Agent node. Nodes wired into it
+	// become tools the model may call, which keeps that relationship visible on
+	// the canvas instead of hidden in a config field.
+	HandleTool = "tool"
 )
 
 // MainIn and MainOut are the single-handle shapes most nodes use.
@@ -169,10 +175,74 @@ type ExecContext struct {
 	// and for nodes that reach back at earlier results.
 	NodeOutputs map[string]map[string][]domain.Item
 
+	// Tools are the nodes wired into this node's tool handle, already prepared
+	// for invocation. Only the AI Agent node reads them; every other node sees
+	// an empty slice.
+	Tools []ToolBinding
+
+	// LLM is the provider registry the AI nodes call through. It is nil when the
+	// deployment has configured none, and those nodes report that rather than
+	// failing obscurely.
+	LLM *llm.Registry
+
 	Trigger     TriggerPayload
 	ExecutionID string
 	HTTPClient  *http.Client
 	Logger      *slog.Logger
+}
+
+// ToolBinding is one node offered to a model as a callable tool. The engine
+// builds these: Invoke runs the target node through the same retry, timeout and
+// persistence path as any other node, so a tool call is as inspectable as a
+// step of the main flow.
+type ToolBinding struct {
+	// Name is the node's name, which is what the model sees and calls.
+	Name string
+
+	// Description tells the model when to reach for this tool. It comes from the
+	// agent's own configuration, where the prompt author is already working.
+	Description string
+
+	// Schema is a JSON Schema for the arguments. An empty schema means the tool
+	// accepts any object, which is the honest default when nobody wrote one.
+	Schema map[string]any
+
+	// Invoke runs the tool. The arguments arrive as one item; the tool's main
+	// output comes back. An error is reported to the model as a failed tool
+	// result rather than ending the run, so it can correct itself.
+	Invoke func(ctx context.Context, args map[string]any) ([]domain.Item, error)
+}
+
+// ToolByName finds a binding, so a node need not scan the slice itself.
+func (ec ExecContext) ToolByName(name string) (ToolBinding, bool) {
+	for _, t := range ec.Tools {
+		if t.Name == name {
+			return t, true
+		}
+	}
+	return ToolBinding{}, false
+}
+
+// ToolSpecs is what the LLM layer needs to advertise this node's tools.
+func (ec ExecContext) ToolSpecs() []llm.ToolSpec {
+	out := make([]llm.ToolSpec, 0, len(ec.Tools))
+	for _, t := range ec.Tools {
+		out = append(out, llm.ToolSpec{
+			Name:        t.Name,
+			Description: t.Description,
+			Schema:      t.Schema,
+		})
+	}
+	return out
+}
+
+// ToolNames lists the bound tool names, for log lines and error messages.
+func (ec ExecContext) ToolNames() []string {
+	out := make([]string, 0, len(ec.Tools))
+	for _, t := range ec.Tools {
+		out = append(out, t.Name)
+	}
+	return out
 }
 
 // Log returns a logger that never panics on a zero context.

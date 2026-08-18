@@ -14,6 +14,7 @@ import (
 
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/auth"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/config"
+	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/llm"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/nodes"
 )
 
@@ -26,6 +27,10 @@ type Deps struct {
 	Signer   *auth.Signer
 	Config   config.Config
 	Logger   *slog.Logger
+
+	// LLM backs the drawer's "Test step" button for the AI nodes. Nil is legal
+	// and makes those nodes report that no provider is configured.
+	LLM *llm.Registry
 }
 
 type server struct {
@@ -35,6 +40,7 @@ type server struct {
 	signer   *auth.Signer
 	cfg      config.Config
 	log      *slog.Logger
+	llm      *llm.Registry
 }
 
 // NewRouter wires every route. The /api/v1 tree is authenticated; /webhook and
@@ -51,6 +57,7 @@ func NewRouter(d Deps) http.Handler {
 		signer:   d.Signer,
 		cfg:      d.Config,
 		log:      log,
+		llm:      d.LLM,
 	}
 
 	r := chi.NewRouter()

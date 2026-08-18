@@ -22,6 +22,7 @@ type nodeCall struct {
 	nodeOutputs map[string]map[string][]domain.Item
 	trigger     nodes.TriggerPayload
 	executionID string
+	tools       []nodes.ToolBinding
 	opts        Options
 }
 
@@ -160,6 +161,8 @@ func (c nodeCall) execContext(ctx context.Context, item domain.Item, index int) 
 		Item:        item,
 		ItemIndex:   index,
 		NodeOutputs: c.nodeOutputs,
+		Tools:       c.tools,
+		LLM:         c.opts.LLM,
 		Trigger:     c.trigger,
 		ExecutionID: c.executionID,
 		HTTPClient:  c.opts.HTTPClient,

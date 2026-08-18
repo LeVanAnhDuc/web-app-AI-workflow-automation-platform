@@ -70,6 +70,17 @@ func ValidateGraph(g domain.Graph, reg *nodes.Registry) error {
 			problems = append(problems,
 				fmt.Sprintf("edge %q goes to unknown node %q", e.ID, e.Target))
 		}
+		// A tool edge into a node with no tool handle would do nothing at all,
+		// which is worse than being refused: the author would watch an agent
+		// ignore a tool they thought they had wired up.
+		if reg != nil && isToolEdge(e) && ids[e.Target] {
+			target, _ := g.NodeByID(e.Target)
+			if !acceptsTools(reg, target) {
+				problems = append(problems, fmt.Sprintf(
+					"node %q does not take tools, so the tool connection from %q would be ignored",
+					target.Name, nodeNameOr(g, e.Source)))
+			}
+		}
 	}
 
 	if _, err := TopologicalOrder(g); err != nil {
@@ -82,6 +93,28 @@ func ValidateGraph(g domain.Graph, reg *nodes.Registry) error {
 	err := domain.Errorf(domain.ErrCodeValidation, "%s", strings.Join(problems, "; "))
 	err.Details = map[string]any{"problems": problems}
 	return err
+}
+
+// acceptsTools reports whether a node type declares a tool input handle.
+func acceptsTools(reg *nodes.Registry, n domain.GraphNode) bool {
+	impl, ok := reg.Get(n.Type)
+	if !ok {
+		return false
+	}
+	for _, h := range impl.Descriptor().Inputs {
+		if h.Name == nodes.HandleTool {
+			return true
+		}
+	}
+	return false
+}
+
+// nodeNameOr renders a node's name for a message, falling back to its id.
+func nodeNameOr(g domain.Graph, id string) string {
+	if n, ok := g.NodeByID(id); ok && n.Name != "" {
+		return n.Name
+	}
+	return id
 }
 
 // isTriggerNode asks the registry, falling back to the type prefix so a graph

@@ -69,6 +69,7 @@ func (s *server) handleTestNode(w http.ResponseWriter, r *http.Request) {
 	result, err := engine.RunNodeOnce(ctx, s.registry, node, input, engine.Options{
 		Logger: s.log,
 		Now:    timeNow,
+		LLM:    s.llm,
 	})
 	if err != nil {
 		// A node that fails during a test is a normal outcome, not an HTTP

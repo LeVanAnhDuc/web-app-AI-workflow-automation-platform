@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/domain"
+	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/llm"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/nodes"
 )
 
@@ -40,6 +41,11 @@ type Options struct {
 	ExecutionTimeout time.Duration       // default 5m
 	Now              func() time.Time    // default time.Now; injected so tests are deterministic
 	Sleep            func(time.Duration) // default time.Sleep; injected so retry tests are fast
+
+	// LLM is handed to the AI nodes. A nil registry is legal: those nodes then
+	// report that no provider is configured, which is the honest answer for a
+	// deployment with no API key.
+	LLM *llm.Registry
 }
 
 func (o Options) withDefaults() Options {
@@ -116,14 +122,17 @@ func (e *Engine) Run(ctx context.Context, executionID string) error {
 	}
 
 	r := &run{
-		e:       e,
-		exec:    exec,
-		graph:   graph,
-		order:   order,
-		outputs: map[string]map[string][]domain.Item{},
-		byName:  map[string]map[string][]domain.Item{},
-		settled: map[string]domain.Status{},
-		trigger: nodes.TriggerPayload{Type: exec.TriggerType, Items: exec.TriggerData},
+		e:             e,
+		exec:          exec,
+		graph:         graph,
+		order:         order,
+		outputs:       map[string]map[string][]domain.Item{},
+		byName:        map[string]map[string][]domain.Item{},
+		settled:       map[string]domain.Status{},
+		trigger:       nodes.TriggerPayload{Type: exec.TriggerType, Items: exec.TriggerData},
+		toolProviders: toolProviders(graph),
+		toolOnly:      toolOnlyNodes(graph),
+		toolCallCount: map[string]int{},
 	}
 	if err := r.rehydrate(ctx); err != nil {
 		return err
@@ -149,6 +158,18 @@ type run struct {
 	byName  map[string]map[string][]domain.Item
 	settled map[string]domain.Status
 	trigger nodes.TriggerPayload
+
+	// toolProviders maps a node id to the nodes wired into its tool handle;
+	// toolOnly are the nodes that exist purely to be called as tools, and
+	// toolCallCount counts invocations for the persisted row.
+	toolProviders map[string][]string
+	toolOnly      map[string]bool
+	toolCallCount map[string]int
+}
+
+// nodeOutputs is the name-keyed output map expressions resolve against.
+func (r *run) nodeOutputs() map[string]map[string][]domain.Item {
+	return r.byName
 }
 
 // rehydrate replays the node executions a previous attempt already completed.
@@ -231,8 +252,15 @@ func (r *run) next() (string, bool) {
 		if _, done := r.settled[id]; done {
 			continue
 		}
+		// A tool-only node is never picked by the loop: the agent that owns it
+		// decides whether and how often it runs.
+		if r.toolOnly[id] {
+			continue
+		}
 		ready := true
-		for _, e := range r.graph.IncomingEdges(id) {
+		// Tool edges are capability edges, not data edges, so they do not make
+		// the consuming node wait on their source.
+		for _, e := range dataPredecessors(r.graph, id) {
 			if _, done := r.settled[e.Source]; !done {
 				ready = false
 				break
@@ -298,6 +326,7 @@ func (r *run) step(ctx, runCtx context.Context, node domain.GraphNode) (bool, er
 		input:       input,
 		inputs:      inputs,
 		nodeOutputs: r.byName,
+		tools:       r.bindTools(runCtx, node),
 		trigger:     r.trigger,
 		executionID: r.exec.ID,
 		opts:        r.e.opts,
@@ -340,7 +369,7 @@ func (r *run) step(ctx, runCtx context.Context, node domain.GraphNode) (bool, er
 // target handle.
 func (r *run) gather(node domain.GraphNode, desc nodes.Descriptor) ([]domain.Item, map[string][]domain.Item) {
 	byHandle := map[string][]domain.Item{}
-	for _, e := range r.graph.IncomingEdges(node.ID) {
+	for _, e := range dataPredecessors(r.graph, node.ID) {
 		out, ok := r.outputs[e.Source]
 		if !ok {
 			continue

@@ -218,6 +218,16 @@ const (
 	ErrCodeValidation = "validation_error"
 	ErrCodeInternal   = "internal_error"
 	ErrCodeCancelled  = "cancelled"
+
+	// ErrCodeLLM covers a provider call that failed. ErrCodeLLMRefusal is kept
+	// separate because it is not a fault to retry: the model declined, and the
+	// workflow author needs to change the request, not run it again.
+	ErrCodeLLM        = "llm_error"
+	ErrCodeLLMRefusal = "llm_refusal"
+
+	// ErrCodeAgentBudget means the agent hit its iteration ceiling with the
+	// model still asking for tools.
+	ErrCodeAgentBudget = "agent_budget_exhausted"
 )
 
 // NodeError is the persisted shape of any node or execution failure. It is

@@ -462,13 +462,24 @@ func TestSchedulesDueAndAdvance(t *testing.T) {
 	wf, err := s.CreateWorkflow(ctx, ws.ID, "Cron")
 	require.NoError(t, err)
 
-	due := time.Now().UTC().Add(-time.Minute)
+	// The due times sit in the near future and the queries use a synthetic
+	// "now" past them. That pins the test to the SQL predicate rather than to
+	// wall-clock ordering, and keeps a live worker — which sweeps schedules
+	// globally using the real clock — from consuming the rows mid-test.
+	base := time.Now().UTC()
+	soon := base.Add(30 * time.Second)
+	later := base.Add(2 * time.Hour)
+	asOf := base.Add(time.Minute)
+
 	require.NoError(t, s.ReplaceSchedules(ctx, ws.ID, wf.ID, []domain.Schedule{
-		{NodeID: "n1", Cron: "*/5 * * * *", NextRunAt: due},
-		{NodeID: "n2", Cron: "0 9 * * *", NextRunAt: time.Now().UTC().Add(time.Hour)},
+		{NodeID: "n1", Cron: "*/5 * * * *", NextRunAt: soon},
+		{NodeID: "n2", Cron: "0 9 * * *", NextRunAt: later},
 	}))
 
-	schedules, err := s.DueSchedules(ctx, time.Now().UTC(), 10)
+	// A generous limit: DueSchedules orders by next_run_at, so any backlog of
+	// older due rows in a shared database would otherwise crowd this test's own
+	// rows out of a small page. The predicate is what is under test here.
+	schedules, err := s.DueSchedules(ctx, asOf, 500)
 	require.NoError(t, err)
 	var mine []domain.Schedule
 	for _, sc := range schedules {
@@ -476,19 +487,18 @@ func TestSchedulesDueAndAdvance(t *testing.T) {
 			mine = append(mine, sc)
 		}
 	}
-	require.Len(t, mine, 1, "only the past-due schedule is returned")
+	require.Len(t, mine, 1, "only the schedule due by asOf is returned")
 	assert.Equal(t, "n1", mine[0].NodeID)
 	assert.Equal(t, "UTC", mine[0].Timezone)
 
-	next := time.Now().UTC().Add(5 * time.Minute)
-	require.NoError(t, s.MarkScheduleRun(ctx, mine[0].ID, time.Now().UTC(), next))
-	schedules, err = s.DueSchedules(ctx, time.Now().UTC(), 10)
+	require.NoError(t, s.MarkScheduleRun(ctx, mine[0].ID, asOf, later))
+	schedules, err = s.DueSchedules(ctx, asOf, 500)
 	require.NoError(t, err)
 	for _, sc := range schedules {
 		assert.NotEqual(t, wf.ID, sc.WorkflowID, "an advanced schedule is no longer due")
 	}
 
-	assert.ErrorIs(t, s.MarkScheduleRun(ctx, uuid.NewString(), time.Now(), next), domain.ErrNotFound)
+	assert.ErrorIs(t, s.MarkScheduleRun(ctx, uuid.NewString(), asOf, later), domain.ErrNotFound)
 }
 
 func TestFirstWorkspaceAndPing(t *testing.T) {

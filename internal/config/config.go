@@ -25,6 +25,14 @@ type Config struct {
 	SeedEmail         string
 	SeedPassword      string
 	LogLevel          string
+
+	// AnthropicAPIKey enables the AI nodes. It is deliberately optional: a
+	// deployment with no key still runs every other node, and those nodes report
+	// the missing key rather than failing obscurely.
+	//
+	// Phase 3 moves per-workspace keys into the credential vault; until then one
+	// key serves the whole single-tenant deployment.
+	AnthropicAPIKey string
 }
 
 // Load reads configuration from the environment.
@@ -37,6 +45,7 @@ func Load() (Config, error) {
 		PublicBaseURL:     envString("PUBLIC_BASE_URL", "http://localhost:3000"),
 		WorkerConcurrency: envInt("WORKER_CONCURRENCY", 4),
 		ExecutionTimeout:  envDuration("EXECUTION_TIMEOUT", 5*time.Minute),
+		AnthropicAPIKey:   os.Getenv("ANTHROPIC_API_KEY"),
 		SeedEmail:         os.Getenv("SEED_EMAIL"),
 		SeedPassword:      os.Getenv("SEED_PASSWORD"),
 		LogLevel:          envString("LOG_LEVEL", "info"),
@@ -74,6 +83,9 @@ func Load() (Config, error) {
 	cfg.PublicBaseURL = strings.TrimRight(cfg.PublicBaseURL, "/")
 	return cfg, nil
 }
+
+// AIEnabled reports whether the AI nodes have a provider to call.
+func (c Config) AIEnabled() bool { return strings.TrimSpace(c.AnthropicAPIKey) != "" }
 
 // Addr is the listen address for the API server.
 func (c Config) Addr() string { return fmt.Sprintf(":%d", c.Port) }

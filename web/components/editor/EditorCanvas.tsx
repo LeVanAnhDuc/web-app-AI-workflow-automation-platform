@@ -102,7 +102,10 @@ export function EditorCanvas({ onOpenPicker }: { onOpenPicker: () => void }) {
       minZoom={0.2}
       maxZoom={2}
       proOptions={{ hideAttribution: true }}
-      className="canvas-dots"
+      // globals.css sizes and colours the handles but leaves their radius to the
+      // library's theme sheet, which base.css does not carry — so it is set here
+      // rather than by loading the whole default look back in.
+      className="canvas-dots [&_.react-flow\_\_handle]:rounded-full"
     >
       <Panel position="top-left">
         <button
@@ -116,7 +119,12 @@ export function EditorCanvas({ onOpenPicker }: { onOpenPicker: () => void }) {
         </button>
       </Panel>
 
-      <Controls position="bottom-left" orientation="horizontal" showInteractive={false}>
+      <Controls
+        position="bottom-left"
+        orientation="horizontal"
+        showInteractive={false}
+        className="overflow-hidden rounded-[10px] border border-line-strong bg-raised text-ink-3 shadow-[var(--shadow-panel)]"
+      >
         <ZoomLabel />
       </Controls>
 

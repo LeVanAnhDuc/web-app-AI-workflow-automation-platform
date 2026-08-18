@@ -341,9 +341,16 @@ type NodeExecution struct {
 	FinishedAt  *time.Time        `json:"finishedAt,omitempty"`
 }
 
-// ItemCount is the number of items on the main output, for the log panel.
+// ItemCount is how many items the node produced in total, across every output
+// handle. Summing rather than reading the main handle matters for a branching
+// node such as IF, whose items leave on "true" and "false" — counting only
+// "main" would report every branch as having produced nothing.
 func (n NodeExecution) ItemCount() int {
-	return len(n.Output[MainHandle])
+	total := 0
+	for _, items := range n.Output {
+		total += len(items)
+	}
+	return total
 }
 
 // DurationMs is the node's wall-clock run time, or nil when unfinished.

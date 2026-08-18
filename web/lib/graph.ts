@@ -256,12 +256,22 @@ export function runtimeFromExecutions(nodeExecutions: NodeExecution[]): Record<s
   for (const ne of nodeExecutions) {
     out[ne.nodeId] = {
       status: ne.status,
-      itemCount: ne.output?.main?.length ?? 0,
+      itemCount: itemCount(ne),
       durationMs: ne.durationMs,
       error: ne.error,
     };
   }
   return out;
+}
+
+/**
+ * How many items a node produced, across every output handle. A branching node
+ * such as IF emits on "true" and "false", so reading only "main" would report
+ * it as having produced nothing.
+ */
+export function itemCount(ne: NodeExecution): number {
+  if (!ne.output) return 0;
+  return Object.values(ne.output).reduce((sum, items) => sum + items.length, 0);
 }
 
 /** The node whose input a retry would resume from, if any. */

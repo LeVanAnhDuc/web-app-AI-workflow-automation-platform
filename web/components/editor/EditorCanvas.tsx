@@ -1,15 +1,37 @@
 "use client";
 
-import "@xyflow/react/dist/style.css";
+// base.css, not style.css: it carries only the structural rules plus React
+// Flow's `--xy-*` theme variables, which we set from our own tokens below.
+// style.css would additionally ship the library's light default look, and being
+// a component stylesheet it loads *after* globals.css — so its greys would win
+// over the overrides there.
+import "@xyflow/react/dist/base.css";
 
 import { Controls, MiniMap, Panel, ReactFlow, useReactFlow, useViewport } from "@xyflow/react";
-import { useEffect, useRef } from "react";
+import type { CSSProperties } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { canvasNodeTypes } from "@/components/canvas/WorkflowNode";
 import { Icons } from "@/components/ui/icons";
 import { Kbd } from "@/components/ui";
 import { useEditorStore } from "@/lib/editorStore";
 import type { FlowNode } from "@/lib/graph";
 import { NODE_DND_MIME } from "./NodePalette";
+
+/** React Flow's theme hooks, bound to the Studio dark tokens. */
+const canvasTheme = {
+  "--xy-background-color": "var(--color-surface)",
+  "--xy-edge-stroke": "var(--color-accent)",
+  "--xy-edge-stroke-width": "2",
+  "--xy-edge-stroke-selected": "var(--color-accent-3)",
+  "--xy-connectionline-stroke": "var(--color-accent-2)",
+  "--xy-connectionline-stroke-width": "2",
+  "--xy-handle-background-color": "var(--color-ink-5)",
+  "--xy-minimap-background-color": "var(--color-panel)",
+  "--xy-selection-background-color": "color-mix(in oklab, var(--color-accent) 12%, transparent)",
+  "--xy-selection-border": "1px dotted var(--color-accent-2)",
+} as CSSProperties;
+
+const branchLabelStyle: CSSProperties = { fontWeight: 700, fontSize: 10 };
 
 export function EditorCanvas({ onOpenPicker }: { onOpenPicker: () => void }) {
   const flowNodes = useEditorStore((s) => s.flowNodes);
@@ -31,10 +53,33 @@ export function EditorCanvas({ onOpenPicker }: { onOpenPicker: () => void }) {
     void fitView({ padding: 0.35, maxZoom: 1, duration: 0 });
   }, [flowNodes.length, fitView]);
 
+  // The `true` / `false` branch labels come from `toFlow`; only their paint
+  // belongs here, since the tokens are a frontend concern.
+  const edges = useMemo(
+    () =>
+      flowEdges.map((edge) =>
+        edge.label
+          ? {
+              ...edge,
+              labelBgPadding: [6, 3] as [number, number],
+              labelBgBorderRadius: 8,
+              labelBgStyle: { fill: "var(--color-raised)" },
+              labelStyle: {
+                ...branchLabelStyle,
+                fill:
+                  edge.label === "false" ? "var(--color-ink-4)" : "var(--color-accent-2)",
+              },
+            }
+          : edge,
+      ),
+    [flowEdges],
+  );
+
   return (
     <ReactFlow<FlowNode>
       nodes={flowNodes}
-      edges={flowEdges}
+      edges={edges}
+      style={canvasTheme}
       nodeTypes={canvasNodeTypes}
       onNodesChange={setNodes}
       onEdgesChange={setEdges}
@@ -80,12 +125,12 @@ export function EditorCanvas({ onOpenPicker }: { onOpenPicker: () => void }) {
         pannable
         zoomable
         ariaLabel="Workflow minimap"
-        // The panel's own background comes from globals.css, so the viewport mask
-        // stays transparent rather than introducing a colour off-token.
+        // A mask tint would need a colour outside the palette, and the mockup's
+        // minimap has none: the viewport is read from the node blocks alone.
         maskColor="transparent"
         nodeStrokeWidth={0}
         nodeBorderRadius={3}
-        nodeClassName={minimapNodeClass}
+        nodeColor={minimapNodeColor}
         style={{ width: 138, height: 82 }}
       />
     </ReactFlow>
@@ -101,10 +146,11 @@ function ZoomLabel() {
   );
 }
 
-function minimapNodeClass(node: FlowNode): string {
-  if (node.selected) return "fill-accent";
-  if (node.data.status === "failed") return "fill-danger";
-  if (node.data.status === "succeeded") return "fill-success";
-  if (node.data.status === "skipped") return "fill-ink-6";
-  return "fill-accent/30";
+/** Returned as an inline `fill`, so it beats the library's own stylesheet. */
+function minimapNodeColor(node: FlowNode): string {
+  if (node.selected) return "var(--color-accent)";
+  if (node.data.status === "failed") return "var(--color-danger)";
+  if (node.data.status === "succeeded") return "var(--color-success)";
+  if (node.data.status === "skipped") return "var(--color-ink-6)";
+  return "color-mix(in oklab, var(--color-accent) 40%, transparent)";
 }

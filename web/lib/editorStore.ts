@@ -133,13 +133,7 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
         if (c.type === "remove" && c.id === selectedNodeId) selectedNodeId = null;
       }
 
-      const graph = pruneEdges({
-        nodes: nextNodes.map((n) => ({
-          ...n.data.node,
-          position: { x: Math.round(n.position.x), y: Math.round(n.position.y) },
-        })),
-        edges: s.graph.edges,
-      });
+      const graph = pruneEdges(withPositions(s.graph, nextNodes));
 
       return {
         graph,
@@ -161,16 +155,7 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
     set((s) => {
       const nextEdges = applyEdgeChanges<FlowEdge>(changes, s.flowEdges);
       const selectedEdgeIds = nextEdges.filter((e) => e.selected).map((e) => e.id);
-      const graph: Graph = {
-        nodes: s.graph.nodes,
-        edges: nextEdges.map((e) => ({
-          id: e.id,
-          source: e.source,
-          sourceHandle: e.sourceHandle || "main",
-          target: e.target,
-          targetHandle: e.targetHandle || "main",
-        })),
-      };
+      const graph = withEdges(s.graph, nextEdges);
       return {
         graph,
         dirty: s.dirty || changes.some(isGraphChange),
@@ -400,12 +385,55 @@ function isGraphChange(change: NodeChange<FlowNode> | EdgeChange<FlowEdge>): boo
   return change.type !== "select" && change.type !== "dimensions";
 }
 
+/* React Flow re-measures a node whenever its object identity changes, and
+   reports the measurement back through `onNodesChange`. If writing that report
+   into the graph produced a fresh graph object every time, the cycle would never
+   settle — so the three graph writers below all return the *same* object when
+   nothing actually changed. */
+
 function pruneEdges(graph: Graph): Graph {
   const ids = new Set(graph.nodes.map((n) => n.id));
-  return {
-    nodes: graph.nodes,
-    edges: graph.edges.filter((e) => ids.has(e.source) && ids.has(e.target)),
-  };
+  const edges = graph.edges.filter((e) => ids.has(e.source) && ids.has(e.target));
+  return edges.length === graph.edges.length ? graph : { nodes: graph.nodes, edges };
+}
+
+function withPositions(graph: Graph, flowNodes: FlowNode[]): Graph {
+  let changed = flowNodes.length !== graph.nodes.length;
+  const nodes = flowNodes.map((n, i) => {
+    const base = n.data.node;
+    const x = Math.round(n.position.x);
+    const y = Math.round(n.position.y);
+    if (graph.nodes[i] !== base) changed = true;
+    if (base.position.x === x && base.position.y === y) return base;
+    changed = true;
+    return { ...base, position: { x, y } };
+  });
+  return changed ? { nodes, edges: graph.edges } : graph;
+}
+
+function withEdges(graph: Graph, flowEdges: FlowEdge[]): Graph {
+  const byId = new Map(graph.edges.map((e) => [e.id, e]));
+  let changed = flowEdges.length !== graph.edges.length;
+
+  const edges = flowEdges.map((e, i) => {
+    const sourceHandle = e.sourceHandle || "main";
+    const targetHandle = e.targetHandle || "main";
+    const prev = byId.get(e.id);
+    if (
+      prev &&
+      prev.source === e.source &&
+      prev.target === e.target &&
+      prev.sourceHandle === sourceHandle &&
+      prev.targetHandle === targetHandle
+    ) {
+      if (graph.edges[i] !== prev) changed = true;
+      return prev;
+    }
+    changed = true;
+    return { id: e.id, source: e.source, sourceHandle, target: e.target, targetHandle };
+  });
+
+  return changed ? { nodes: graph.nodes, edges } : graph;
 }
 
 function rebuild(
@@ -436,7 +464,14 @@ function rebuild(
     return prev && sameEdge(prev, next) ? prev : next;
   });
 
-  return { flowNodes, flowEdges };
+  return {
+    flowNodes: sameArray(prevNodes, flowNodes) ? prevNodes : flowNodes,
+    flowEdges: sameArray(prevEdges, flowEdges) ? prevEdges : flowEdges,
+  };
+}
+
+function sameArray<T>(a: T[], b: T[]): boolean {
+  return a.length === b.length && a.every((item, i) => item === b[i]);
 }
 
 function sameNode(a: FlowNode, b: FlowNode): boolean {

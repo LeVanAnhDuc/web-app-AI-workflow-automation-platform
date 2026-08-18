@@ -1,0 +1,13 @@
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - banner [ref=f3e3]:
+      - link "Flowgrid" [ref=f3e4] [cursor=pointer]:
+        - /url: /workflows
+      - navigation "Breadcrumb" [ref=f3e12]:
+        - link "Executions" [ref=f3e13] [cursor=pointer]:
+          - /url: /executions
+        - generic [ref=f3e16]: exec_7c2d8
+      - button "Sign out" [ref=f3e17]:
+        - generic [ref=f3e18]: "?"
+    - generic [ref=f3e21]: Loading execution…
+  - button "Open Next.js Dev Tools" [ref=f3e30] [cursor=pointer]

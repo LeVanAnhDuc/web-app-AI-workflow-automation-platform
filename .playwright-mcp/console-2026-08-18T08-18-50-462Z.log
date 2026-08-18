@@ -1,0 +1,45 @@
+[     478ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[     518ms] [LOG] [HMR] connected @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[     920ms] [WARNING] [React Flow]: Couldn't create edge for source handle id: "true", edge id: e4. Help: https://reactflow.dev/error#008 @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[     921ms] [WARNING] [React Flow]: Couldn't create edge for source handle id: "true", edge id: e4. Help: https://reactflow.dev/error#008 @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[     949ms] [WARNING] [React Flow]: Couldn't create edge for source handle id: "true", edge id: e4. Help: https://reactflow.dev/error#008 @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[     953ms] [WARNING] [React Flow]: Couldn't create edge for source handle id: "true", edge id: e4. Help: https://reactflow.dev/error#008 @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[     953ms] [WARNING] [React Flow]: Couldn't create edge for source handle id: "true", edge id: e4. Help: https://reactflow.dev/error#008 @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[    1303ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[    1321ms] [LOG] [Fast Refresh] done in 120ms @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[   39814ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[   40157ms] [ERROR] ./components/executions/ExecutionDetail.tsx:152:16
+Error: Expected '</', got 'ident'
+  150 |           />
+  151 |
+> 152 |           <div className="flex min-h-0 grow border-t border-line bg-panel">
+      |                ^^^^^^^^^
+  153 |             <NodeTimeline
+  154 |               rows={timeline}
+  155 |               selectedNodeId={selectedNodeId}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./components/executions/ExecutionDetail.tsx
+    ./app/executions/[id]/page.tsx @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:1052
+[   40463ms] [ERROR] ./components/executions/ExecutionDetail.tsx:152:16
+Error: Expected '</', got 'ident'
+  150 |           />
+  151 |
+> 152 |           <div className="flex min-h-0 grow border-t border-line bg-panel">
+      |                ^^^^^^^^^
+  153 |             <NodeTimeline
+  154 |               rows={timeline}
+  155 |               selectedNodeId={selectedNodeId}
+
+Parsing ecmascript source code failed
+
+Import trace:
+  Server Component:
+    ./components/executions/ExecutionDetail.tsx
+    ./app/executions/[id]/page.tsx @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:1052
+[   40489ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[   48304ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776
+[   48421ms] [LOG] [Fast Refresh] done in 74ms @ http://localhost:3111/_next/static/chunks/node_modules_next_dist_1e8vcs8._.js:776

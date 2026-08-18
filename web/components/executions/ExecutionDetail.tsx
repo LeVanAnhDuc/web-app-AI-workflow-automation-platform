@@ -132,14 +132,23 @@ export function ExecutionDetail({ id }: { id: string }) {
             </div>
           )}
 
-          <GraphReplay
-            graph={detail.graph}
-            runtime={runtime}
-            descriptors={descriptors}
-            version={execution.version}
-            selectedNodeId={selectedNodeId}
-            onSelect={setPickedNodeId}
-          />
+          {/* Descriptors decide how many output handles a node has, so drawing
+              the graph before they land would drop branch edges and then
+              re-add them. */}
+          {descriptorQuery.isPending ? (
+            <div className="canvas-dots flex h-[348px] shrink-0 items-center justify-center">
+              <Spinner className="text-ink-5" />
+            </div>
+          ) : (
+            <GraphReplay
+              graph={detail.graph}
+              runtime={runtime}
+              descriptors={descriptors}
+              version={execution.version}
+              selectedNodeId={selectedNodeId}
+              onSelect={setPickedNodeId}
+            />
+          )}
 
           <div className="flex min-h-0 grow border-t border-line bg-panel">
             <NodeTimeline

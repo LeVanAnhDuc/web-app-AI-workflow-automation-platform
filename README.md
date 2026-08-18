@@ -25,7 +25,7 @@ No Redis, no external queue broker: the queue is a Postgres table claimed with
 
 ```bash
 cp .env.example .env          # then edit JWT_SECRET and CREDENTIAL_KEY
-make db-up                    # Postgres on :5433
+make db-up                    # Postgres on :6543
 make migrate
 make api                      # :8080
 make worker                   # in a second shell
@@ -64,5 +64,5 @@ make test-web    # typecheck + Vitest
 Store tests need a real database and skip unless `TEST_DATABASE_URL` is set:
 
 ```bash
-TEST_DATABASE_URL=postgres://flowgrid:flowgrid@localhost:5433/flowgrid?sslmode=disable go test ./internal/store/...
+TEST_DATABASE_URL=postgres://flowgrid:flowgrid@localhost:6543/flowgrid?sslmode=disable go test ./internal/store/...
 ```

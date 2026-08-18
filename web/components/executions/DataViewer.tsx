@@ -206,7 +206,10 @@ function ErrorPane({
 
       <div className="flex min-w-0 grow flex-col gap-3.5 overflow-auto px-[18px] py-3.5">
         {view === "json" ? (
-          <JsonView value={error} className="border-danger/22!" />
+          // shrink-0 keeps the block at its natural height inside the scrolling
+          // flex column; the cap stops a long error from pushing the retry
+          // history and the resume note out of sight.
+          <JsonView value={error} className="max-h-[210px] shrink-0 border-danger/22!" />
         ) : (
           <FieldTable item={{ json: errorFields }} />
         )}

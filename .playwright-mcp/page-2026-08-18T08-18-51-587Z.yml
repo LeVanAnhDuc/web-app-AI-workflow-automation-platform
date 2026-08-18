@@ -1,0 +1,134 @@
+- generic [active] [ref=f4e1]:
+  - generic [ref=f4e2]:
+    - banner [ref=f4e3]:
+      - link "Flowgrid" [ref=f4e4] [cursor=pointer]:
+        - /url: /workflows
+      - navigation "Breadcrumb" [ref=f4e12]:
+        - link "Executions" [ref=f4e13] [cursor=pointer]:
+          - /url: /executions
+        - generic [ref=f4e16]: exec_running
+      - button "Sign out" [ref=f4e17]:
+        - generic [ref=f4e18]: HN
+    - generic [ref=f4e21]:
+      - generic [ref=f4e22]: Running
+      - generic [ref=f4e27]:
+        - generic [ref=f4e28]:
+          - heading "Support ticket triage" [level=1] [ref=f4e29]
+          - generic [ref=f4e30]: v12
+        - generic [ref=f4e31]:
+          - generic [ref=f4e32]: Webhook
+          - generic [ref=f4e33]: ·
+          - generic [ref=f4e34]: 18 Aug 2026, 15:18:34
+          - generic [ref=f4e35]: ·
+          - generic [ref=f4e36]: 16.42s
+          - generic [ref=f4e37]: ·
+          - generic [ref=f4e38]: 1 of 5 nodes completed
+      - link "Open in editor" [ref=f4e39] [cursor=pointer]:
+        - /url: /workflows/wf_1
+      - button "Cancel" [ref=f4e42]
+    - generic [ref=f4e45]:
+      - application [ref=f4e46]:
+        - generic [ref=f4e48]:
+          - generic:
+            - generic:
+              - img:
+                - img "Edge from n1 to n2"
+              - img:
+                - img "Edge from n2 to n3"
+              - img:
+                - img "Edge from n3 to n4"
+            - generic:
+              - group [ref=f4e49] [cursor=pointer]:
+                - generic [ref=f4e50]:
+                  - generic [ref=f4e56]:
+                    - generic "New ticket" [ref=f4e57]
+                    - generic [ref=f4e58]: trigger.webhook
+                  - generic [ref=f4e59]:
+                    - generic [ref=f4e61]: 1 item
+                    - generic [ref=f4e62]: 2ms
+              - group [ref=f4e63] [cursor=pointer]:
+                - generic [ref=f4e70]:
+                  - generic "Normalise fields" [ref=f4e71]
+                  - generic [ref=f4e72]: running…
+              - group [ref=f4e73] [cursor=pointer]:
+                - generic [ref=f4e80]:
+                  - generic "Classify ticket" [ref=f4e81]
+                  - generic [ref=f4e82]: http.request
+              - group [ref=f4e83] [cursor=pointer]:
+                - generic [ref=f4e90]:
+                  - generic "Assign to team" [ref=f4e91]
+                  - generic [ref=f4e92]: logic.if
+              - group [ref=f4e93] [cursor=pointer]:
+                - generic [ref=f4e100]:
+                  - generic "Notify Slack" [ref=f4e101]
+                  - generic [ref=f4e102]: http.request
+      - generic:
+        - generic: GRAPH REPLAY
+        - generic: read-only · version v12
+    - generic [ref=f4e104]:
+      - generic [ref=f4e105]:
+        - generic [ref=f4e106]: NODE TIMELINE
+        - list [ref=f4e108]:
+          - listitem [ref=f4e109]:
+            - button "New ticket 15:06:43.9 2ms" [ref=f4e110]:
+              - generic [ref=f4e112]:
+                - generic [ref=f4e113]: New ticket
+                - generic [ref=f4e114]: 15:06:43.9
+              - generic [ref=f4e115]: 2ms
+          - listitem [ref=f4e116]:
+            - button "Normalise fields 15:06:43.9" [ref=f4e117]:
+              - generic [ref=f4e119]:
+                - generic [ref=f4e120]: Normalise fields
+                - generic [ref=f4e121]: 15:06:43.9
+          - listitem [ref=f4e122]:
+            - button "Classify ticket not executed" [ref=f4e123]:
+              - generic [ref=f4e125]:
+                - generic [ref=f4e126]: Classify ticket
+                - generic [ref=f4e127]: not executed
+          - listitem [ref=f4e128]:
+            - button "Assign to team not executed" [ref=f4e129]:
+              - generic [ref=f4e131]:
+                - generic [ref=f4e132]: Assign to team
+                - generic [ref=f4e133]: not executed
+          - listitem [ref=f4e134]:
+            - button "Notify Slack not executed" [ref=f4e135]:
+              - generic [ref=f4e137]:
+                - generic [ref=f4e138]: Notify Slack
+                - generic [ref=f4e139]: not executed
+      - generic [ref=f4e140]:
+        - generic [ref=f4e141]:
+          - generic [ref=f4e142]:
+            - heading "Input" [level=2] [ref=f4e143]
+            - generic [ref=f4e144]: 1 item from New ticket
+            - generic [ref=f4e145]:
+              - button "Table" [ref=f4e146]
+              - button "JSON" [ref=f4e147]
+          - generic [ref=f4e149]:
+            - generic [ref=f4e150]:
+              - generic [ref=f4e151]: FIELD
+              - generic [ref=f4e152]: VALUE
+            - generic [ref=f4e153]:
+              - generic [ref=f4e154]: id
+              - generic [ref=f4e155]: "\"TCK-40219\""
+            - generic [ref=f4e156]:
+              - generic [ref=f4e157]: subject
+              - generic [ref=f4e158]: "\"Cannot export invoice PDF\""
+            - generic [ref=f4e159]:
+              - generic [ref=f4e160]: body
+              - generic [ref=f4e161]: "\"Hi team, the export button spins forever on the invoices page…\""
+            - generic [ref=f4e162]:
+              - generic [ref=f4e163]: customer_tier
+              - generic [ref=f4e164]: "\"enterprise\""
+            - generic [ref=f4e165]:
+              - generic [ref=f4e166]: created_at
+              - generic [ref=f4e167]: "\"2026-08-18T14:31:01Z\""
+        - generic [ref=f4e168]:
+          - generic [ref=f4e169]:
+            - heading "Output" [level=2] [ref=f4e170]
+            - generic [ref=f4e171]: still running
+            - generic [ref=f4e172]:
+              - button "Table" [ref=f4e173]
+              - button "JSON" [ref=f4e174]
+          - paragraph [ref=f4e176]: Nothing to show.
+  - button "Open Next.js Dev Tools" [ref=f4e182] [cursor=pointer]
+  - alert [ref=f4e186]

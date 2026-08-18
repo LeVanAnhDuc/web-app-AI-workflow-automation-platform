@@ -14,6 +14,11 @@ import { duration } from "@/lib/format";
 export function WorkflowNode({ data, selected }: NodeProps<FlowNode>) {
   const { node, descriptor, status, itemCount, durationMs, error, readOnly } = data;
 
+  // On a replay, a node the engine never reached has no row at all — the
+  // untaken branch of an IF is `skipped`, but everything downstream of a
+  // failure simply never happened. Both should read as inert on the canvas.
+  const notExecuted = readOnly === true && status === undefined;
+
   const outputs = descriptor?.Outputs?.length ? descriptor.Outputs : [{ Name: "main", Label: "Output" }];
   const inputs = descriptor?.IsTrigger ? [] : descriptor?.Inputs?.length ? descriptor.Inputs : [{ Name: "main", Label: "Input" }];
 
@@ -24,19 +29,23 @@ export function WorkflowNode({ data, selected }: NodeProps<FlowNode>) {
         ? "border-accent shadow-[0_0_0_4px_rgba(139,92,246,0.16),0_10px_28px_rgba(0,0,0,0.45)]"
         : status === "succeeded"
           ? "border-success/35 shadow-[var(--shadow-panel)]"
-          : status === "skipped"
+          : status === "skipped" || notExecuted
             ? "border-dashed border-[#2b3040]"
             : "border-line-strong shadow-[var(--shadow-panel)]";
 
   const bg =
-    status === "failed" ? "bg-[#1d1620]" : status === "skipped" ? "bg-panel" : "bg-raised";
+    status === "failed"
+      ? "bg-[#1d1620]"
+      : status === "skipped" || notExecuted
+        ? "bg-panel"
+        : "bg-raised";
 
   const chip =
     status === "failed"
       ? "bg-danger/16 text-danger"
       : status === "succeeded"
         ? "bg-success/13 text-success"
-        : status === "skipped"
+        : status === "skipped" || notExecuted
           ? "bg-white/4 text-ink-5"
           : descriptor?.IsTrigger
             ? "bg-accent/15 text-accent-2"
@@ -71,7 +80,7 @@ export function WorkflowNode({ data, selected }: NodeProps<FlowNode>) {
             className={clsx(
               "truncate text-[12.5px]",
               status === "failed" ? "font-bold" : "font-semibold",
-              status === "skipped" && "text-ink-4",
+              (status === "skipped" || notExecuted) && "text-ink-4",
             )}
             title={node.name}
           >
@@ -80,10 +89,14 @@ export function WorkflowNode({ data, selected }: NodeProps<FlowNode>) {
           <div
             className={clsx(
               "truncate font-mono text-[10px]",
-              status === "failed" ? "text-danger-2" : status === "skipped" ? "text-ink-6" : "text-ink-4",
+              status === "failed"
+                ? "text-danger-2"
+                : status === "skipped" || notExecuted
+                  ? "text-ink-6"
+                  : "text-ink-4",
             )}
           >
-            {subline({ status, itemCount, durationMs, error, type: node.type })}
+            {subline({ status, itemCount, durationMs, error, type: node.type, notExecuted })}
           </div>
         </div>
       </div>
@@ -131,13 +144,16 @@ function subline({
   itemCount,
   error,
   type,
+  notExecuted,
 }: {
   status?: string;
   itemCount?: number;
   durationMs?: number;
   error?: { message: string; status?: number; attempts?: number };
   type: string;
+  notExecuted?: boolean;
 }): string {
+  if (notExecuted) return "not executed";
   if (status === "failed") {
     const code = error?.status ? `HTTP ${error.status}` : "Failed";
     return error?.attempts && error.attempts > 1 ? `${code} · ${error.attempts} attempts` : code;

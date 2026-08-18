@@ -1,6 +1,0 @@
-- generic [ref=f17e3]:
-  - heading "This page couldn’t load" [level=1] [ref=f17e6]
-  - paragraph [ref=f17e7]: Reload to try again, or go back.
-  - generic [ref=f17e8]:
-    - button "Reload" [ref=f17e10] [cursor=pointer]
-    - button "Back" [ref=f17e11] [cursor=pointer]

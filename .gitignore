@@ -12,6 +12,7 @@ out/
 .turbo/
 playwright-report/
 test-results/
+.playwright-mcp/
 
 # Env
 .env

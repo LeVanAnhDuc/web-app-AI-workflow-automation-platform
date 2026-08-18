@@ -350,6 +350,11 @@ export function isParamVisible(
   return when.Equals.some((v) => v === actual);
 }
 
+/**
+ * Tool edges count here, deliberately: the engine's own topological sort
+ * includes them, so a loop through a tool edge is a loop the backend refuses
+ * too. A tool-only node is never itself a cycle — nothing points back at it.
+ */
 export function hasCycle(graph: Graph): boolean {
   const out = new Map<string, string[]>();
   for (const e of graph.edges) {
@@ -408,7 +413,10 @@ export function upstreamNames(graph: Graph, nodeId: string): string[] {
   const out: string[] = [];
 
   const walk = (id: string) => {
-    for (const e of graph.edges.filter((x) => x.target === id)) {
+    // Tool edges are skipped: a tool provider does not feed the agent, the agent
+    // calls it. Treating one as upstream would make the drawer preview an
+    // agent's input from a node that never ran before it.
+    for (const e of graph.edges.filter((x) => x.target === id && !isToolEdge(x))) {
       if (seen.has(e.source)) continue;
       seen.add(e.source);
       const n = byId.get(e.source);

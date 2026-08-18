@@ -120,11 +120,28 @@ a:hover {
 .react-flow__edge.is-error .react-flow__edge-path {
   stroke: var(--color-danger);
 }
+/* A tool edge is a capability, not a data path: dashed and accent-tinted so an
+   author can tell at a glance which connections feed a model's tool list. */
+.react-flow__edge.is-tool .react-flow__edge-path {
+  stroke: var(--color-accent-2);
+  stroke-width: 1.6;
+  stroke-dasharray: 3 5;
+}
 .react-flow__handle {
   width: 11px;
   height: 11px;
   border: 2px solid var(--color-surface);
   background: var(--color-ink-5);
+}
+/* The matching socket: square and accent-filled, because a round grey handle
+   would promise items flowing through it. The compound selector is needed to
+   beat the `rounded-full` utility the canvas puts on every handle. */
+.react-flow__handle.is-tool-handle {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  background: var(--color-accent);
+  border-color: var(--color-panel);
 }
 .react-flow__handle-connecting {
   background: var(--color-accent);

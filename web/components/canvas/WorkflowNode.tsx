@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
-import type { FlowNode } from "@/lib/graph";
+import { TOOL_HANDLE, type FlowNode } from "@/lib/graph";
 import { NodeIcon } from "@/components/ui/icons";
 import { duration } from "@/lib/format";
 
@@ -20,7 +20,17 @@ export function WorkflowNode({ data, selected }: NodeProps<FlowNode>) {
   const notExecuted = readOnly === true && status === undefined;
 
   const outputs = descriptor?.Outputs?.length ? descriptor.Outputs : [{ Name: "main", Label: "Output" }];
-  const inputs = descriptor?.IsTrigger ? [] : descriptor?.Inputs?.length ? descriptor.Inputs : [{ Name: "main", Label: "Input" }];
+  const declaredInputs = descriptor?.IsTrigger
+    ? []
+    : descriptor?.Inputs?.length
+      ? descriptor.Inputs
+      : [{ Name: "main", Label: "Input" }];
+
+  // Tools hang below the node that calls them, so their socket goes on the
+  // bottom edge. Keeping them out of the left-edge list also stops a two-input
+  // agent from spreading its data handle off-centre.
+  const inputs = declaredInputs.filter((h) => h.Name !== TOOL_HANDLE);
+  const toolInputs = declaredInputs.filter((h) => h.Name === TOOL_HANDLE);
 
   const ring =
     status === "failed"
@@ -125,6 +135,19 @@ export function WorkflowNode({ data, selected }: NodeProps<FlowNode>) {
           position={Position.Right}
           isConnectable={!readOnly}
           style={{ top: handleOffset(i, outputs.length) }}
+        />
+      ))}
+
+      {toolInputs.map((h) => (
+        <Handle
+          key={h.Name}
+          type="target"
+          id={h.Name}
+          position={Position.Bottom}
+          isConnectable={!readOnly}
+          className="is-tool-handle"
+          title={`${h.Label} — connect nodes here to let this node call them as tools`}
+          aria-label={`${h.Label} input: connect nodes here to let ${node.name} call them as tools`}
         />
       ))}
     </div>

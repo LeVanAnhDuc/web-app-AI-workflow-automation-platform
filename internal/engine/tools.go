@@ -200,10 +200,17 @@ func (r *run) persistToolCall(ctx context.Context, node domain.GraphNode, status
 		return fmt.Errorf("engine: persist tool call for %s: %w", node.ID, err)
 	}
 
-	// The tool's output is recorded for expressions, so a later node can read
-	// {{ $node["Fetch profile"].json }} and see what the agent saw.
+	// The tool's output is recorded under both keys the engine uses — by id for
+	// edges, by name for expressions — so a later node can read
+	// {{ $node["Fetch profile"].json }} and see what the agent saw. Recording
+	// only one of the two would make that expression silently resolve to nothing.
+	//
+	// A tool node that also sits in the main flow is run by the loop as well, and
+	// that run overwrites this entry. That is the right precedence: the main
+	// flow's own pass is the one downstream edges are waiting on.
 	if status == domain.StatusSucceeded {
 		r.outputs[node.ID] = outputs
+		r.byName[node.Name] = outputs
 	}
 	return nil
 }

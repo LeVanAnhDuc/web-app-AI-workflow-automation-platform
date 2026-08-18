@@ -1,0 +1,2 @@
+[     169ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/v1/workflows?sort=updated:0
+[    1194ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:3000/api/v1/workflows?sort=updated:0

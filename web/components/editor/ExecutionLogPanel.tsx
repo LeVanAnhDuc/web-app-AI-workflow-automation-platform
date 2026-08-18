@@ -84,7 +84,7 @@ export function ExecutionLogPanel() {
           aria-expanded={!collapsed}
           onClick={() => setCollapsed((c) => !c)}
         >
-          {collapsed ? <Icons.chevronUp size={15} /> : <Icons.chevronDown size={15} />}
+          {collapsed ? <Icons.chevronDown size={15} /> : <Icons.chevronUp size={15} />}
         </IconButton>
       </div>
 

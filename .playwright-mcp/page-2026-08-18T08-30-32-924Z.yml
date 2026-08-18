@@ -1,0 +1,26 @@
+- generic [ref=f11e1]:
+  - main [ref=f11e2]:
+    - generic [ref=f11e6]:
+      - generic [ref=f11e14]:
+        - heading "Sign in to Flowgrid" [level=1] [ref=f11e15]
+        - paragraph [ref=f11e16]: Enter your workspace credentials to continue.
+      - generic [ref=f11e17]:
+        - generic [ref=f11e18]:
+          - generic [ref=f11e19]: Email
+          - textbox "Email" [active] [ref=f11e25]:
+            - /placeholder: you@acme.vn
+        - generic [ref=f11e26]:
+          - generic [ref=f11e27]:
+            - generic [ref=f11e28]: Password
+            - button "Forgot?" [disabled] [ref=f11e29]
+          - generic [ref=f11e30]:
+            - textbox "Password" [ref=f11e35]:
+              - /placeholder: ••••••••••
+            - button "Show password" [ref=f11e36]
+        - checkbox "Keep me signed in for 30 days" [checked] [ref=f11e40]
+        - button "Sign in" [ref=f11e45]
+      - generic [ref=f11e46]:
+        - generic [ref=f11e50]: Self-hosted workspace
+        - generic [ref=f11e51]: ·
+        - generic [ref=f11e52]: localhost:3099
+  - alert [ref=f11e53]

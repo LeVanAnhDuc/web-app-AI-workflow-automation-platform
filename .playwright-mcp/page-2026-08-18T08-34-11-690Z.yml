@@ -1,0 +1,120 @@
+- generic [ref=f13e1]:
+  - generic [ref=f13e2]:
+    - banner [ref=f13e7]:
+      - link "Flowgrid" [ref=f13e8] [cursor=pointer]:
+        - /url: /workflows
+      - navigation "Breadcrumb" [ref=f13e16]:
+        - link "Workflows" [ref=f13e17] [cursor=pointer]:
+          - /url: /workflows
+        - 'button "Workflow name: Lead enrichment. Click to rename" [ref=f13e20]': Lead enrichment
+        - generic [ref=f13e21]: v7
+      - generic [ref=f13e22]:
+        - generic [ref=f13e23]: Inactive
+        - switch "Workflow active" [ref=f13e24]
+      - button "Saved" [disabled] [ref=f13e27]
+      - button "Run" [ref=f13e28]
+    - generic [ref=f13e31]:
+      - complementary [ref=f13e32]:
+        - textbox "Search nodes" [ref=f13e34]
+        - generic [ref=f13e35]:
+          - generic [ref=f13e36]: TRIGGERS
+          - button "Manual" [ref=f13e38]
+          - button "Webhook" [ref=f13e42]
+          - button "Schedule" [ref=f13e47]
+        - generic [ref=f13e52]:
+          - generic [ref=f13e53]: CORE
+          - button "HTTP Request" [ref=f13e55]
+          - button "Code" [ref=f13e60]
+          - button "Set" [ref=f13e64]
+        - generic [ref=f13e69]:
+          - generic [ref=f13e70]: FLOW
+          - button "IF" [ref=f13e72]
+          - button "Merge" [ref=f13e76]
+        - generic [ref=f13e80]:
+          - generic [ref=f13e81]: AI
+          - generic "Available in phase 2" [ref=f13e83]:
+            - generic [ref=f13e86]: LLM
+            - generic [ref=f13e87]: P2
+          - generic "Available in phase 2" [ref=f13e88]:
+            - generic [ref=f13e92]: AI Agent
+            - generic [ref=f13e93]: P2
+      - application [ref=f13e95]:
+        - generic [ref=f13e97]:
+          - generic:
+            - generic:
+              - img:
+                - group "Edge from n1 to n2"
+              - img:
+                - group "Edge from n2 to n3"
+              - img:
+                - group "Edge from n3 to n4" [ref=f13e98] [cursor=pointer]:
+                  - generic [ref=f13e101]: "true"
+              - img:
+                - group "Edge from n3 to n5" [ref=f13e103] [cursor=pointer]:
+                  - generic [ref=f13e106]: "false"
+            - generic:
+              - group [active] [ref=f13e108]:
+                - generic [ref=f13e115]:
+                  - generic "New lead" [ref=f13e116]
+                  - generic [ref=f13e117]: trigger.webhook
+              - group [ref=f13e119]:
+                - generic [ref=f13e127]:
+                  - generic "Fetch profile" [ref=f13e128]
+                  - generic [ref=f13e129]: http.request
+              - group [ref=f13e131]:
+                - generic [ref=f13e138]:
+                  - generic "Has company?" [ref=f13e139]
+                  - generic [ref=f13e140]: if
+              - group [ref=f13e143]:
+                - generic [ref=f13e150]:
+                  - generic "Score lead" [ref=f13e151]
+                  - generic [ref=f13e152]: code
+              - group [ref=f13e154]:
+                - generic [ref=f13e162]:
+                  - generic "Mark unknown" [ref=f13e163]
+                  - generic [ref=f13e164]: set
+        - button "Add node Tab" [ref=f13e167]:
+          - text: Add node
+          - generic [ref=f13e170]: Tab
+        - generic "Control Panel" [ref=f13e171]:
+          - button "Zoom In" [ref=f13e172]
+          - button "Zoom Out" [ref=f13e175]
+          - button "Fit View" [ref=f13e178]
+          - generic [ref=f13e181]: 100%
+        - img "Workflow minimap" [ref=f13e183]
+      - complementary "Configuration for New lead" [ref=f13e190]:
+        - generic [ref=f13e191]:
+          - generic [ref=f13e196]:
+            - 'button "Node name: New lead. Click to rename" [ref=f13e197]': New lead
+            - generic [ref=f13e198]: trigger.webhook
+          - button "Close configuration" [ref=f13e199]
+        - tablist "Node configuration" [ref=f13e202]:
+          - tab "Parameters" [selected] [ref=f13e203]
+          - tab "Settings" [ref=f13e204]
+          - tab "Output" [ref=f13e205]
+        - generic [ref=f13e206]:
+          - generic [ref=f13e207]:
+            - generic [ref=f13e208]: Path
+            - textbox "lead-in" [ref=f13e210]
+          - generic [ref=f13e211]:
+            - generic [ref=f13e212]: Method
+            - combobox [ref=f13e215]:
+              - option "GET"
+              - option "POST" [selected]
+        - button "Test step" [ref=f13e217]
+    - region "Execution log" [ref=f13e220]:
+      - generic [ref=f13e221]:
+        - tablist "Bottom panel" [ref=f13e222]:
+          - tab "Execution log" [selected] [ref=f13e223]
+          - tab "Data" [ref=f13e224]
+        - generic [ref=f13e225]: No run yet
+        - button "Collapse the execution log" [expanded] [ref=f13e226]
+      - generic [ref=f13e229]:
+        - generic [ref=f13e230]:
+          - generic [ref=f13e232]: NODE
+          - generic [ref=f13e233]: TYPE
+          - generic [ref=f13e234]: ITEMS
+          - generic [ref=f13e235]: TIME
+          - generic [ref=f13e236]: STARTED
+        - paragraph [ref=f13e237]: Press Run to execute the workflow — each node appears here as it finishes.
+  - alert [ref=f13e238]

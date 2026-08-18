@@ -1,0 +1,38 @@
+- generic [active] [ref=f18e1]:
+  - generic [ref=f18e2]:
+    - banner [ref=f18e3]:
+      - link "Flowgrid" [ref=f18e4] [cursor=pointer]:
+        - /url: /workflows
+      - navigation [ref=f18e11]:
+        - link "Workflows" [ref=f18e12] [cursor=pointer]:
+          - /url: /workflows
+        - link "Executions" [ref=f18e13] [cursor=pointer]:
+          - /url: /executions
+        - generic "Available in phase 3" [ref=f18e14]: Credentials
+      - generic [ref=f18e15]:
+        - generic [ref=f18e19]: Search
+        - generic [ref=f18e20]: /
+      - button "?" [ref=f18e21]
+    - generic [ref=f18e25]:
+      - generic [ref=f18e26]:
+        - heading "Workflows" [level=1] [ref=f18e28]
+        - button "New workflow" [ref=f18e29]
+      - generic [ref=f18e32]:
+        - searchbox [ref=f18e37]
+        - generic [ref=f18e38]:
+          - button "All" [ref=f18e39]
+          - button "Active" [ref=f18e40]
+          - button "Inactive" [ref=f18e41]
+        - generic [ref=f18e42]:
+          - generic [ref=f18e43]: Sort
+          - combobox "Sort" [ref=f18e44]:
+            - option "Recently updated" [selected]
+            - option "Name"
+            - option "Recently created"
+      - generic [ref=f18e46]:
+        - generic [ref=f18e47]: WORKFLOW
+        - generic [ref=f18e48]: STATUS
+        - generic [ref=f18e49]: LAST RUN
+        - generic [ref=f18e50]: SUCCESS · 7D
+        - generic [ref=f18e51]: UPDATED
+  - alert [ref=f18e133]

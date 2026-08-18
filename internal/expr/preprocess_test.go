@@ -6,14 +6,17 @@ func TestPreprocessRewritesOnlyOutsideQuotes(t *testing.T) {
 	cases := []struct {
 		name, src, want string
 	}{
-		{"bare name", "$json.email", "_dollar_json.email"},
-		{"several names", "$json.a + $itemIndex", "_dollar_json.a + _dollar_itemIndex"},
-		{"node lookup", `$node["Fetch"].json`, `_dollar_node["Fetch"].json`},
+		// A member access on a $-name becomes optional, so an absent field in
+		// caller-supplied data yields nil instead of failing the run. See
+		// optional_test.go for the reasoning and the evaluation-level proof.
+		{"bare name", "$json.email", "_dollar_json?.email"},
+		{"several names", "$json.a + $itemIndex", "_dollar_json?.a + _dollar_itemIndex"},
+		{"node lookup", `$node["Fetch"].json`, `_dollar_node["Fetch"]?.json`},
 		{"dollar amount in a double-quoted string", `"total: $5"`, `"total: $5"`},
 		{"name inside a double-quoted string", `"$json"`, `"$json"`},
 		{"name inside a single-quoted string", `'$json'`, `'$json'`},
 		{"name inside a backtick string", "`$json`", "`$json`"},
-		{"quoted left untouched, bare rewritten", `"$json" + $json.a`, `"$json" + _dollar_json.a`},
+		{"quoted left untouched, bare rewritten", `"$json" + $json.a`, `"$json" + _dollar_json?.a`},
 		{"escaped quote does not end the string", `"a\"$json" + $json`, `"a\"$json" + _dollar_json`},
 		{"backslash is literal inside backticks", "`a\\` + $json", "`a\\` + _dollar_json"},
 		{"lone dollar", "1 + $ 2", "1 + $ 2"},

@@ -1,0 +1,159 @@
+- generic [ref=f12e1]:
+  - generic [ref=f12e2]:
+    - banner [ref=f12e8]:
+      - link "Flowgrid" [ref=f12e9] [cursor=pointer]:
+        - /url: /workflows
+      - navigation "Breadcrumb" [ref=f12e17]:
+        - link "Workflows" [ref=f12e18] [cursor=pointer]:
+          - /url: /workflows
+        - 'button "Workflow name: Lead enrichment. Click to rename" [ref=f12e21]': Lead enrichment
+        - generic [ref=f12e22]: v7
+      - generic [ref=f12e23]:
+        - generic [ref=f12e24]: Inactive
+        - switch "Workflow active" [ref=f12e25]
+      - button "Saved" [disabled] [ref=f12e28]
+      - button "Run" [ref=f12e29]
+    - generic [ref=f12e32]:
+      - complementary [ref=f12e33]:
+        - textbox "Search nodes" [ref=f12e35]
+        - generic [ref=f12e36]:
+          - generic [ref=f12e37]: TRIGGERS
+          - button "Manual" [ref=f12e39]
+          - button "Webhook" [ref=f12e43]
+          - button "Schedule" [ref=f12e48]
+        - generic [ref=f12e53]:
+          - generic [ref=f12e54]: CORE
+          - button "HTTP Request" [ref=f12e56]
+          - button "Code" [ref=f12e61]
+          - button "Set" [ref=f12e65]
+        - generic [ref=f12e70]:
+          - generic [ref=f12e71]: FLOW
+          - button "IF" [ref=f12e73]
+          - button "Merge" [ref=f12e77]
+        - generic [ref=f12e81]:
+          - generic [ref=f12e82]: AI
+          - generic "Available in phase 2" [ref=f12e84]:
+            - generic [ref=f12e87]: LLM
+            - generic [ref=f12e88]: P2
+          - generic "Available in phase 2" [ref=f12e89]:
+            - generic [ref=f12e93]: AI Agent
+            - generic [ref=f12e94]: P2
+      - application [ref=f12e96]:
+        - generic [ref=f12e98]:
+          - generic:
+            - generic:
+              - img:
+                - group "Edge from n1 to n2"
+              - img:
+                - group "Edge from n2 to n3"
+              - img:
+                - group "Edge from n3 to n4" [ref=f12e99] [cursor=pointer]:
+                  - generic [ref=f12e102]: "true"
+              - img:
+                - group "Edge from n3 to n5" [ref=f12e104] [cursor=pointer]:
+                  - generic [ref=f12e107]: "false"
+            - generic:
+              - group [ref=f12e109]:
+                - generic [ref=f12e116]:
+                  - generic "New lead" [ref=f12e117]
+                  - generic [ref=f12e118]: trigger.webhook
+              - group [active] [ref=f12e120]:
+                - generic [ref=f12e128]:
+                  - generic "Fetch profile" [ref=f12e129]
+                  - generic [ref=f12e130]: http.request
+              - group [ref=f12e132]:
+                - generic [ref=f12e139]:
+                  - generic "Has company?" [ref=f12e140]
+                  - generic [ref=f12e141]: if
+              - group [ref=f12e144]:
+                - generic [ref=f12e151]:
+                  - generic "Score lead" [ref=f12e152]
+                  - generic [ref=f12e153]: code
+              - group [ref=f12e155]:
+                - generic [ref=f12e163]:
+                  - generic "Mark unknown" [ref=f12e164]
+                  - generic [ref=f12e165]: set
+        - button "Add node Tab" [ref=f12e168]:
+          - text: Add node
+          - generic [ref=f12e171]: Tab
+        - generic "Control Panel" [ref=f12e172]:
+          - button "Zoom In" [ref=f12e173]
+          - button "Zoom Out" [ref=f12e176]
+          - button "Fit View" [ref=f12e179]
+          - generic [ref=f12e182]: 100%
+        - img "Workflow minimap" [ref=f12e184]
+      - complementary "Configuration for Fetch profile" [ref=f12e191]:
+        - generic [ref=f12e192]:
+          - generic [ref=f12e197]:
+            - 'button "Node name: Fetch profile. Click to rename" [ref=f12e198]': Fetch profile
+            - generic [ref=f12e199]: http.request
+          - button "Close configuration" [ref=f12e200]
+        - tablist "Node configuration" [ref=f12e203]:
+          - tab "Parameters" [selected] [ref=f12e204]
+          - tab "Settings" [ref=f12e205]
+          - tab "Output" [ref=f12e206]
+        - generic [ref=f12e207]:
+          - paragraph [ref=f12e212]: Needs a httpAuth credential. The credential vault arrives in phase 3.
+          - generic [ref=f12e213]:
+            - generic [ref=f12e214]: Method
+            - combobox [ref=f12e217]:
+              - option "GET" [selected]
+              - option "POST"
+              - option "PUT"
+              - option "PATCH"
+              - option "DELETE"
+          - generic [ref=f12e218]:
+            - generic [ref=f12e219]:
+              - generic [ref=f12e220]: URL
+              - button "Insert an expression into URL" [ref=f12e221]: expression
+            - textbox "https://api.example.com/v1/people" [ref=f12e222]: "https://api.clearbit.com/v2/people/find?email={{ $json.email }}"
+            - generic [ref=f12e223]: → https://api.clearbit.com/v2/people/find?email=undefined
+          - generic [ref=f12e224]:
+            - generic [ref=f12e225]: Authentication
+            - combobox [ref=f12e228]:
+              - option "None" [selected]
+              - option "Bearer token"
+          - generic [ref=f12e229]:
+            - generic [ref=f12e230]: Send headers
+            - generic [ref=f12e232]:
+              - generic [ref=f12e233]: "On"
+              - switch "Send headers" [checked] [ref=f12e234]
+          - generic [ref=f12e236]:
+            - generic [ref=f12e237]:
+              - generic [ref=f12e238]: Headers
+              - button "Add a Headers row" [ref=f12e239]: + Add
+            - generic [ref=f12e241]:
+              - textbox "Headers name 1" [ref=f12e242]:
+                - /placeholder: Name
+                - text: Authorization
+              - textbox "Headers value 1" [ref=f12e243]:
+                - /placeholder: Value
+                - text: Bearer sk_test
+              - button "Remove Headers row 1" [ref=f12e244]
+          - generic [ref=f12e247]:
+            - generic [ref=f12e248]: Send body
+            - generic [ref=f12e250]:
+              - generic [ref=f12e251]: "Off"
+              - switch "Send body" [ref=f12e252]
+          - generic [ref=f12e254]:
+            - generic [ref=f12e255]: Response format
+            - combobox [ref=f12e258]:
+              - option "JSON" [selected]
+              - option "Text"
+        - button "Test step" [ref=f12e260]
+    - region "Execution log" [ref=f12e263]:
+      - generic [ref=f12e264]:
+        - tablist "Bottom panel" [ref=f12e265]:
+          - tab "Execution log" [selected] [ref=f12e266]
+          - tab "Data" [ref=f12e267]
+        - generic [ref=f12e268]: No run yet
+        - button "Collapse the execution log" [expanded] [ref=f12e269]
+      - generic [ref=f12e272]:
+        - generic [ref=f12e273]:
+          - generic [ref=f12e275]: NODE
+          - generic [ref=f12e276]: TYPE
+          - generic [ref=f12e277]: ITEMS
+          - generic [ref=f12e278]: TIME
+          - generic [ref=f12e279]: STARTED
+        - paragraph [ref=f12e280]: Press Run to execute the workflow — each node appears here as it finishes.
+  - alert [ref=f12e7]

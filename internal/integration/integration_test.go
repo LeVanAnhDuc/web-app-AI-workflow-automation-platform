@@ -178,6 +178,10 @@ func (s *stack) request(method, path string, body any, wantStatus int, out any) 
 // drainQueue claims and runs every queued job the way cmd/worker does, so the
 // test exercises the real enqueue/claim path rather than calling the engine
 // straight from the handler's return value.
+//
+// A real worker may be running against the same scratch database and claim a
+// job first. That is fine: settle returns whatever ran it, so the assertions
+// hold either way.
 func (s *stack) drainQueue() {
 	s.t.Helper()
 
@@ -211,6 +215,27 @@ func (s *stack) drainQueue() {
 		}
 	}
 	s.t.Fatal("queue did not drain within ten rounds")
+}
+
+// settle drains the queue and then waits for the execution to reach a terminal
+// state, so the test does not care whether this process or a separately running
+// worker did the work.
+func (s *stack) settle(executionID string) executionDetail {
+	s.t.Helper()
+	s.drainQueue()
+
+	deadline := time.Now().Add(20 * time.Second)
+	for {
+		got := s.executionDetail(executionID)
+		if got.Execution.Status.Terminal() {
+			return got
+		}
+		if time.Now().After(deadline) {
+			s.t.Fatalf("execution %s is still %s after 20s", executionID, got.Execution.Status)
+		}
+		time.Sleep(100 * time.Millisecond)
+		s.drainQueue()
+	}
 }
 
 type executionDetail struct {
@@ -308,9 +333,7 @@ func TestManualRunFlowsDataThroughEveryNodeType(t *testing.T) {
 	workflowID := s.createWorkflow("Lead enrichment", graph)
 	execID := s.run(workflowID, map[string]any{"email": "ha@acme.vn", "company": "acme.vn"})
 
-	s.drainQueue()
-
-	got := s.executionDetail(execID)
+	got := s.settle(execID)
 	if got.Execution.Status != domain.StatusSucceeded {
 		t.Fatalf("status %q, error %+v", got.Execution.Status, got.Execution.Error)
 	}
@@ -366,9 +389,7 @@ func TestPerItemNodeFansOutOverItems(t *testing.T) {
 		map[string]any{"id": 3},
 	})
 
-	s.drainQueue()
-
-	got := s.executionDetail(execID)
+	got := s.settle(execID)
 	if got.Execution.Status != domain.StatusSucceeded {
 		t.Fatalf("status %q, error %+v", got.Execution.Status, got.Execution.Error)
 	}
@@ -417,9 +438,7 @@ func TestFailedRunRecordsTheNodeAndRetryResumesFromIt(t *testing.T) {
 
 	workflowID := s.createWorkflow("Flaky call", graph)
 	execID := s.run(workflowID, map[string]any{"id": "TCK-1"})
-	s.drainQueue()
-
-	failed := s.executionDetail(execID)
+	failed := s.settle(execID)
 	if failed.Execution.Status != domain.StatusFailed {
 		t.Fatalf("status %q, want failed", failed.Execution.Status)
 	}
@@ -454,9 +473,7 @@ func TestFailedRunRecordsTheNodeAndRetryResumesFromIt(t *testing.T) {
 	}
 	prepareFinishedAt := prepared.FinishedAt
 
-	s.drainQueue()
-
-	after := s.executionDetail(retried.Execution.ID)
+	after := s.settle(retried.Execution.ID)
 	// It fails again, which is expected — the point is that the succeeded nodes
 	// were reused rather than re-executed, so their side effects happened once.
 	rePrepared := nodeByName(t, after.NodeExecutions, "Prepare")
@@ -488,9 +505,7 @@ func TestContinueOnFailKeepsTheFlowGoing(t *testing.T) {
 
 	workflowID := s.createWorkflow("Best effort", graph)
 	execID := s.run(workflowID, map[string]any{"id": 1})
-	s.drainQueue()
-
-	got := s.executionDetail(execID)
+	got := s.settle(execID)
 	if got.Execution.Status != domain.StatusSucceeded {
 		t.Fatalf("status %q, error %+v", got.Execution.Status, got.Execution.Error)
 	}
@@ -554,9 +569,7 @@ func TestWebhookIngressRunsTheWorkflow(t *testing.T) {
 	}
 	s.own[accepted.ExecutionID] = true
 
-	s.drainQueue()
-
-	got := s.executionDetail(accepted.ExecutionID)
+	got := s.settle(accepted.ExecutionID)
 	if got.Execution.Status != domain.StatusSucceeded {
 		t.Fatalf("status %q, error %+v", got.Execution.Status, got.Execution.Error)
 	}
@@ -585,7 +598,7 @@ func TestExecutionStreamEmitsProgressAndCloses(t *testing.T) {
 	}
 	workflowID := s.createWorkflow("Streamed", graph)
 	execID := s.run(workflowID, map[string]any{"id": 1})
-	s.drainQueue()
+	s.settle(execID)
 
 	// Connecting after the run finished must still replay the final state and
 	// then close, or a client that misses the start would hang forever.
@@ -626,8 +639,7 @@ func TestWorkflowListSummarisesTheLastRun(t *testing.T) {
 		{ID: "n1", Type: "trigger.manual", Name: "Start", Params: map[string]any{}},
 	}}
 	workflowID := s.createWorkflow("Summarised", graph)
-	s.run(workflowID, nil)
-	s.drainQueue()
+	s.settle(s.run(workflowID, nil))
 
 	var listed struct {
 		Workflows []domain.WorkflowSummary `json:"workflows"`

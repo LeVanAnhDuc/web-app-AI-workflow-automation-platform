@@ -16,14 +16,25 @@ const (
 	escape   = '\\'
 )
 
-// Preprocess rewrites $-prefixed names outside string literals. Exported for
-// tests, because the quote-awareness is the subtle part: expr-lang will not lex
-// a $, so `$json` must become `_dollar_json`, while a `$` that belongs to the
-// user's data — "total: $5" — must survive untouched.
+// Preprocess rewrites $-prefixed names outside string literals, and makes the
+// member accesses that hang off them optional. Exported for tests, because the
+// quote-awareness is the subtle part: expr-lang will not lex a $, so `$json`
+// must become `_dollar_json`, while a `$` that belongs to the user's data —
+// "total: $5" — must survive untouched.
+//
+// The optional chaining exists because workflow data is shaped by whoever sends
+// it. A webhook that omits an optional field would otherwise fail the whole run
+// with "cannot fetch company from <nil>", when the honest answer is that the
+// field is absent. So `$json.body.company` compiles as `$json?.body?.company`
+// and yields nil. Only chains rooted at a $-name are rewritten, so an
+// expression's own literals and function calls are untouched.
 func Preprocess(src string) string {
 	var b strings.Builder
 	b.Grow(len(src) + len(dollar))
+
 	var quote byte // the quote we are inside, 0 when outside any literal
+	inChain := false
+
 	for i := 0; i < len(src); i++ {
 		c := src[i]
 		if quote != 0 {
@@ -39,18 +50,47 @@ func Preprocess(src string) string {
 			}
 			continue
 		}
+
 		switch c {
 		case '\'', '"', backTick:
+			// A quoted string inside a subscript — $node["Fetch profile"] — is
+			// part of the chain, so the chain state is left alone here.
 			quote = c
 			b.WriteByte(c)
 		case '$':
 			// Only a $ that starts an identifier is a name; "$5" is not.
 			if i+1 < len(src) && isIdentStart(src[i+1]) {
 				b.WriteString(dollar)
+				inChain = true
+				continue
+			}
+			inChain = false
+			b.WriteByte(c)
+		case '.':
+			// A dot directly after a name or a subscript continues the chain;
+			// `1.5` and a leading `.` do not.
+			if inChain && i+1 < len(src) && isIdentStart(src[i+1]) {
+				b.WriteString("?.")
 				continue
 			}
 			b.WriteByte(c)
+		case '?':
+			// An author who already wrote ?. keeps exactly that: consuming the
+			// dot here is what stops it becoming ??. on the way through.
+			if i+1 < len(src) && src[i+1] == '.' {
+				b.WriteString("?.")
+				i++
+				continue
+			}
+			b.WriteByte(c)
+		case '[', ']', '(', ')':
+			// Subscripts and call parentheses keep the chain alive so that
+			// $node["X"].json and $items[0].json both resolve optionally.
+			b.WriteByte(c)
 		default:
+			if !isIdentPart(c) {
+				inChain = false
+			}
 			b.WriteByte(c)
 		}
 	}
@@ -59,6 +99,10 @@ func Preprocess(src string) string {
 
 func isIdentStart(c byte) bool {
 	return c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+}
+
+func isIdentPart(c byte) bool {
+	return isIdentStart(c) || (c >= '0' && c <= '9')
 }
 
 // segment is one piece of a template: either literal text or an expression body.

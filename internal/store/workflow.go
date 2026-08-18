@@ -121,7 +121,13 @@ runs AS (
     GROUP BY workflow_id
 )
 SELECT w.id, w.name, w.active, w.updated_at,
-       COALESCE(jsonb_array_length(l.graph -> 'nodes'), 0) AS node_count,
+       -- jsonb_array_length and jsonb_array_elements both raise 22023 on a
+       -- non-array, and the -> operator yields a jsonb null (a scalar) rather
+       -- than SQL NULL, so COALESCE cannot rescue it. Rows written before the
+       -- API guaranteed arrays hold {"nodes": null}, and an empty workflow is
+       -- legitimate data, so the type is checked instead.
+       CASE WHEN jsonb_typeof(l.graph -> 'nodes') = 'array'
+            THEN jsonb_array_length(l.graph -> 'nodes') ELSE 0 END AS node_count,
        COALESCE(t.node_type, '') AS trigger_type,
        COALESCE(t.cron, '')      AS trigger_detail,
        le.id, le.status, le.created_at,
@@ -132,7 +138,10 @@ LEFT JOIN last_exec le ON le.workflow_id = w.id
 LEFT JOIN runs      r  ON r.workflow_id = w.id
 LEFT JOIN LATERAL (
     SELECT n ->> 'type' AS node_type, COALESCE(n -> 'params' ->> 'cron', '') AS cron
-    FROM jsonb_array_elements(COALESCE(l.graph -> 'nodes', '[]'::jsonb)) AS n
+    FROM jsonb_array_elements(
+             CASE WHEN jsonb_typeof(l.graph -> 'nodes') = 'array'
+                  THEN l.graph -> 'nodes' ELSE '[]'::jsonb END
+         ) AS n
     WHERE n ->> 'type' LIKE 'trigger.%'
     ORDER BY n ->> 'type'
     LIMIT 1

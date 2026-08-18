@@ -29,12 +29,16 @@ export function useExecutionStream(
     if (!executionId) return;
 
     const source = new EventSource(executions.streamUrl(executionId));
+    let finished = false;
 
     const listen = (name: ExecutionStreamEvent["type"]) => {
       const handler = (raw: MessageEvent<string>) => {
         const event = parseEvent(name, raw.data);
         if (event) onEventRef.current(event);
-        if (name === "done") source.close();
+        if (name === "done") {
+          finished = true;
+          source.close();
+        }
       };
       source.addEventListener(name, handler as EventListener);
     };
@@ -45,7 +49,8 @@ export function useExecutionStream(
 
     source.addEventListener("error", () => {
       source.close();
-      onErrorRef.current?.();
+      // The server ending a finished stream is not a failure worth reporting.
+      if (!finished) onErrorRef.current?.();
     });
 
     return () => source.close();

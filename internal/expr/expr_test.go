@@ -111,11 +111,14 @@ func TestEvaluateCompileErrorNamesTheExpression(t *testing.T) {
 }
 
 func TestEvaluateRuntimeErrorNamesTheExpression(t *testing.T) {
-	_, err := Evaluate("{{ $json.nope.deeper }}", testEnv())
+	// Reaching through a missing key is deliberately tolerated now, so the
+	// runtime error used here has to be a real mistake: arithmetic on a value
+	// that is not there.
+	_, err := Evaluate("{{ $json.nope.deeper + 1 }}", testEnv())
 	mustError(t, err, "runtime error")
 	ne := domain.AsNodeError(err)
 	mustEqual(t, ne.Code, domain.ErrCodeExpression, "error code")
-	mustContain(t, ne.Message, "$json.nope.deeper", "message names the expression")
+	mustContain(t, ne.Message, "$json.nope.deeper + 1", "message names the expression")
 }
 
 func TestEvaluateStringStringifies(t *testing.T) {

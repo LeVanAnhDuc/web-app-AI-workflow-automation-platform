@@ -11,7 +11,7 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 const SESSION_COOKIE = "fg_session";
 
-export function middleware(req: NextRequest) {
+export default function proxy(req: NextRequest) {
   const signedIn = req.cookies.has(SESSION_COOKIE);
   const isLogin = req.nextUrl.pathname === "/login";
 

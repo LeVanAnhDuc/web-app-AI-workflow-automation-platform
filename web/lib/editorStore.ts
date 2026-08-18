@@ -127,10 +127,23 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
     set((s) => {
       const nextNodes = applyNodeChanges<FlowNode>(changes, s.flowNodes);
 
+      // Clicking a second node arrives as one batch: deselect A, select B. The
+      // order is not guaranteed, so a naive last-change-wins read can end up
+      // with nothing selected — hence tracking the deselect separately.
       let selectedNodeId = s.selectedNodeId;
+      let deselected = false;
       for (const c of changes) {
-        if (c.type === "select") selectedNodeId = c.selected ? c.id : null;
-        if (c.type === "remove" && c.id === selectedNodeId) selectedNodeId = null;
+        if (c.type !== "select") continue;
+        if (c.selected) {
+          selectedNodeId = c.id;
+          deselected = false;
+        } else if (c.id === selectedNodeId) {
+          deselected = true;
+        }
+      }
+      if (deselected) selectedNodeId = null;
+      if (changes.some((c) => c.type === "remove" && c.id === selectedNodeId)) {
+        selectedNodeId = null;
       }
 
       const graph = pruneEdges(withPositions(s.graph, nextNodes));

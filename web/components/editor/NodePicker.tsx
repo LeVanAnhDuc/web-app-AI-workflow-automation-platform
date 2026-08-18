@@ -69,14 +69,21 @@ export function NodePicker({
     if (open) {
       setQuery("");
       setCategory("All");
-      setHighlight(0);
     }
   }, [open]);
 
-  // Keep the highlight inside the list as filtering shrinks it.
+  // Keep the highlight inside the list as filtering shrinks it, and prefer a row
+  // Enter can actually act on — landing on an "in use" trigger makes the key
+  // look broken.
   useEffect(() => {
-    setHighlight((h) => (flat.length === 0 ? 0 : Math.min(h, flat.length - 1)));
-  }, [flat.length]);
+    setHighlight((h) => {
+      if (flat.length === 0) return 0;
+      const clamped = Math.min(h, flat.length - 1);
+      if (!flat[clamped].inUse) return clamped;
+      const firstAddable = flat.findIndex((r) => !r.inUse);
+      return firstAddable === -1 ? clamped : firstAddable;
+    });
+  }, [flat]);
 
   useEffect(() => {
     const el = listRef.current?.querySelector<HTMLElement>('[data-highlighted="true"]');
@@ -120,6 +127,10 @@ export function NodePicker({
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search nodes"
             aria-label="Search nodes"
+            role="combobox"
+            aria-expanded
+            aria-controls="node-picker-list"
+            aria-activedescendant={flat[highlight] ? rowId(flat[highlight]) : undefined}
             className="grow bg-transparent text-base font-medium text-ink outline-none placeholder:text-ink-4"
           />
           <Kbd>esc</Kbd>
@@ -150,12 +161,18 @@ export function NodePicker({
           <div className="flex min-w-0 grow flex-col">
             <div
               ref={listRef}
+              id="node-picker-list"
               role="listbox"
               aria-label="Node types"
               className="flex min-h-[200px] grow flex-col gap-[3px] overflow-y-auto px-3 py-3"
             >
               {groups.map((group) => (
-                <div key={group.category} className="flex flex-col gap-[3px]">
+                <div
+                  key={group.category}
+                  role="group"
+                  aria-label={group.category}
+                  className="flex flex-col gap-[3px]"
+                >
                   <div className="px-3 pb-1.5 pt-1.5 text-[10.5px] font-bold tracking-[0.07em] text-ink-5">
                     {group.category.toUpperCase()}
                   </div>
@@ -247,6 +264,7 @@ function PickerRow({
   const { descriptor, inUse } = row;
   return (
     <div
+      id={rowId(row)}
       role="option"
       aria-selected={highlighted}
       aria-disabled={inUse}
@@ -294,6 +312,11 @@ function PickerRow({
       )}
     </div>
   );
+}
+
+/** Stable per-row id so the search box can point `aria-activedescendant` at it. */
+function rowId(row: Row): string {
+  return `node-picker-${row.descriptor.Type.replace(/[^a-zA-Z0-9]/g, "-")}`;
 }
 
 function groupRows(rows: Row[]): { category: string; rows: Row[] }[] {

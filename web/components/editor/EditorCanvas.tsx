@@ -102,10 +102,13 @@ export function EditorCanvas({ onOpenPicker }: { onOpenPicker: () => void }) {
       minZoom={0.2}
       maxZoom={2}
       proOptions={{ hideAttribution: true }}
-      // globals.css sizes and colours the handles but leaves their radius to the
-      // library's theme sheet, which base.css does not carry — so it is set here
-      // rather than by loading the whole default look back in.
-      className="canvas-dots [&_.react-flow\_\_handle]:rounded-full"
+      // Two details live in React Flow's theme sheet, which we deliberately do
+      // not load: the handles' radius, and the focus ring on a node reached by
+      // keyboard. globals.css cannot supply them — component CSS loads after it.
+      className="canvas-dots [&_.react-flow\_\_handle]:rounded-full
+        [&_.react-flow\_\_node:focus-visible]:outline-2
+        [&_.react-flow\_\_node:focus-visible]:outline-offset-2
+        [&_.react-flow\_\_node:focus-visible]:outline-accent-2"
     >
       <Panel position="top-left">
         <button

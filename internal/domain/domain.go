@@ -116,6 +116,27 @@ type Graph struct {
 	Edges []Edge      `json:"edges"`
 }
 
+// MarshalJSON renders the node and edge lists as empty arrays rather than null.
+//
+// Go marshals a nil slice to `null`, so a brand-new workflow's empty graph
+// reached the editor as {"nodes":null,"edges":null} and every consumer had to
+// guard before iterating. Guaranteeing arrays here fixes it once, for every
+// caller, instead of at each call site.
+func (g Graph) MarshalJSON() ([]byte, error) {
+	type wire struct {
+		Nodes []GraphNode `json:"nodes"`
+		Edges []Edge      `json:"edges"`
+	}
+	out := wire{Nodes: g.Nodes, Edges: g.Edges}
+	if out.Nodes == nil {
+		out.Nodes = []GraphNode{}
+	}
+	if out.Edges == nil {
+		out.Edges = []Edge{}
+	}
+	return json.Marshal(out)
+}
+
 // NodeByID finds a node by its graph id.
 func (g Graph) NodeByID(id string) (GraphNode, bool) {
 	for _, n := range g.Nodes {

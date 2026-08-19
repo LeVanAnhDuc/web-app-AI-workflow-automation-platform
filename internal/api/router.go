@@ -14,6 +14,7 @@ import (
 
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/auth"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/config"
+	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/credentials"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/llm"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/nodes"
 )
@@ -31,6 +32,10 @@ type Deps struct {
 	// LLM backs the drawer's "Test step" button for the AI nodes. Nil is legal
 	// and makes those nodes report that no provider is configured.
 	LLM *llm.Registry
+
+	// Credentials is the vault. Nil is legal only in a test that touches none of
+	// the credential routes; the binaries always supply one.
+	Credentials *credentials.Service
 }
 
 type server struct {
@@ -41,6 +46,11 @@ type server struct {
 	cfg      config.Config
 	log      *slog.Logger
 	llm      *llm.Registry
+	creds    *credentials.Service
+
+	// testClient issues the "Test connection" request. It is a field rather than
+	// a fresh client per call so a test can point it at an httptest server.
+	testClient *http.Client
 }
 
 // NewRouter wires every route. The /api/v1 tree is authenticated; /webhook and
@@ -58,7 +68,13 @@ func NewRouter(d Deps) http.Handler {
 		cfg:      d.Config,
 		log:      log,
 		llm:      d.LLM,
+		creds:    d.Credentials,
 	}
+	testTimeout := d.Config.CredentialTestTimeout
+	if testTimeout <= 0 {
+		testTimeout = 10 * time.Second
+	}
+	s.testClient = &http.Client{Timeout: testTimeout}
 
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -81,6 +97,12 @@ func NewRouter(d Deps) http.Handler {
 	// Public ingress. Any method, so a provider can send whatever it likes.
 	r.HandleFunc("/webhook/*", s.handleWebhook)
 
+	// The OAuth callback is the provider's redirect, not an API call: it arrives
+	// in the user's browser with no session cookie guarantee and only a state
+	// this process minted, so it lives outside /api/v1 and authenticates itself
+	// by that state alone.
+	r.Get(config.OAuthCallbackPath, s.handleOAuthCallback)
+
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Post("/auth/login", s.handleLogin)
 		r.Post("/auth/logout", s.handleLogout)
@@ -92,6 +114,17 @@ func NewRouter(d Deps) http.Handler {
 
 			r.Get("/node-types", s.handleNodeTypes)
 			r.Post("/nodes/{type}/test", s.handleTestNode)
+
+			r.Get("/credential-types", s.handleCredentialTypes)
+			r.Get("/oauth/redirect-uri", s.handleOAuthRedirectURI)
+
+			r.Get("/credentials", s.handleListCredentials)
+			r.Post("/credentials", s.handleCreateCredential)
+			r.Get("/credentials/{id}", s.handleGetCredential)
+			r.Patch("/credentials/{id}", s.handlePatchCredential)
+			r.Delete("/credentials/{id}", s.handleDeleteCredential)
+			r.Post("/credentials/{id}/test", s.handleTestCredential)
+			r.Post("/credentials/{id}/oauth/start", s.handleOAuthStart)
 
 			r.Get("/workflows", s.handleListWorkflows)
 			r.Post("/workflows", s.handleCreateWorkflow)

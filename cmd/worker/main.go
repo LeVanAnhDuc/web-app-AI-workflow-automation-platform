@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/config"
+	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/credentials"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/domain"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/engine"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/llm"
@@ -57,6 +58,13 @@ func run() error {
 	workerID := workerIdentity()
 	q := queue.New(st.Pool(), workerID)
 
+	// The worker needs the vault too: a node's credential is resolved at run
+	// time, in this process, from the execution's own workspace.
+	vault, err := credentials.New(st, cfg.CredentialKey, credentials.Options{})
+	if err != nil {
+		return err
+	}
+
 	eng := engine.New(st, nodes.Default(), engine.Options{
 		HTTPClient: &http.Client{
 			// A node has its own per-node timeout; this is the backstop for a
@@ -66,6 +74,7 @@ func run() error {
 		Logger:           log,
 		ExecutionTimeout: cfg.ExecutionTimeout,
 		LLM:              llm.FromAPIKey(cfg.AnthropicAPIKey, log),
+		Credentials:      vault,
 	})
 
 	go tickSchedules(ctx, st, q, log)

@@ -148,6 +148,7 @@ func (r *run) toolInvoker(node domain.GraphNode, impl nodes.Node) func(context.C
 			input:       input,
 			inputs:      map[string][]domain.Item{domain.MainHandle: input},
 			nodeOutputs: r.nodeOutputs(),
+			credential:  r.bindCredential(node),
 			trigger:     r.trigger,
 			executionID: r.exec.ID,
 			opts:        r.e.opts,

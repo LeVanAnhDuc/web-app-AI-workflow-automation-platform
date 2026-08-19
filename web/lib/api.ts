@@ -1,5 +1,9 @@
 import type {
   ApiErrorBody,
+  CredentialListResponse,
+  CredentialResponse,
+  CredentialTestResult,
+  CredentialTypeListResponse,
   Execution,
   ExecutionDetailResponse,
   ExecutionListResponse,
@@ -7,6 +11,7 @@ import type {
   Item,
   NodeDescriptor,
   NodeTestResponse,
+  OAuthStartResponse,
   Status,
   User,
   WorkflowDetailResponse,
@@ -145,4 +150,54 @@ export const executions = {
   retry: (id: string) =>
     request<{ execution: Execution }>(`/executions/${id}/retry`, { method: "POST" }),
   streamUrl: (id: string) => `${API_BASE}/executions/${id}/stream`,
+};
+
+// --- credentials ------------------------------------------------------------
+
+export const credentialTypes = {
+  list: () => request<CredentialTypeListResponse>("/credential-types"),
+};
+
+export interface CredentialInput {
+  type: string;
+  name: string;
+  fields: Record<string, string>;
+}
+
+export interface CredentialPatch {
+  name?: string;
+  /** An omitted key keeps its stored value; an empty string on a *secret* also
+   *  keeps it, which is how the form submits an untouched password. */
+  fields?: Record<string, string>;
+}
+
+export const credentials = {
+  list: (type?: string) => {
+    const suffix = type ? `?type=${encodeURIComponent(type)}` : "";
+    return request<CredentialListResponse>(`/credentials${suffix}`);
+  },
+  get: (id: string) => request<CredentialResponse>(`/credentials/${encodeURIComponent(id)}`),
+  create: (input: CredentialInput) =>
+    request<CredentialResponse>("/credentials", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+  patch: (id: string, patch: CredentialPatch) =>
+    request<CredentialResponse>(`/credentials/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      body: JSON.stringify(patch),
+    }),
+  remove: (id: string) =>
+    request<void>(`/credentials/${encodeURIComponent(id)}`, { method: "DELETE" }),
+  test: (id: string) =>
+    request<CredentialTestResult>(`/credentials/${encodeURIComponent(id)}/test`, {
+      method: "POST",
+    }),
+  /** Starts the authorisation-code dance. The caller sends the browser to the
+   *  returned URL; the provider then returns it to `returnTo`. */
+  oauthStart: (id: string, returnTo?: string) =>
+    request<OAuthStartResponse>(`/credentials/${encodeURIComponent(id)}/oauth/start`, {
+      method: "POST",
+      body: JSON.stringify({ returnTo: returnTo ?? null }),
+    }),
 };

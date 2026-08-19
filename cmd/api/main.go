@@ -19,6 +19,7 @@ import (
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/api"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/auth"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/config"
+	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/credentials"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/llm"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/nodes"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/queue"
@@ -73,6 +74,13 @@ func run(migrateOnly bool) error {
 		return err
 	}
 
+	// One vault per process. It is the only thing holding the encryption key,
+	// so building it here and passing it down keeps the blast radius to it.
+	vault, err := credentials.New(st, cfg.CredentialKey, credentials.Options{})
+	if err != nil {
+		return err
+	}
+
 	handler := api.NewRouter(api.Deps{
 		Store:    st,
 		Queue:    queue.New(st.Pool(), "api"),
@@ -81,6 +89,8 @@ func run(migrateOnly bool) error {
 		Config:   cfg,
 		Logger:   log,
 		LLM:      llm.FromAPIKey(cfg.AnthropicAPIKey, log),
+
+		Credentials: vault,
 	})
 
 	srv := &http.Server{
@@ -94,7 +104,8 @@ func run(migrateOnly bool) error {
 
 	errs := make(chan error, 1)
 	go func() {
-		log.Info("api: listening", "addr", srv.Addr, "publicBaseURL", cfg.PublicBaseURL)
+		log.Info("api: listening", "addr", srv.Addr,
+			"publicBaseURL", cfg.PublicBaseURL, "oauthRedirectURI", cfg.OAuthRedirectURI())
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errs <- err
 		}

@@ -26,6 +26,19 @@ type Config struct {
 	SeedPassword      string
 	LogLevel          string
 
+	// CredentialTestTimeout bounds the "Test connection" request. It is short
+	// on purpose: the button is a liveness check, not a workload, and a provider
+	// that has not answered in ten seconds has already told us what we needed.
+	CredentialTestTimeout time.Duration
+
+	// OAuthRedirectURL overrides the callback URL registered with a provider.
+	// It exists because PublicBaseURL is not always what the provider can
+	// reach — a tunnel in development, a different host behind a proxy — and a
+	// redirect URI that does not match the registered one to the character is
+	// the single most common reason an OAuth flow fails. Empty means "derive it
+	// from PublicBaseURL", which is the normal case.
+	OAuthRedirectURL string
+
 	// AnthropicAPIKey enables the AI nodes. It is deliberately optional: a
 	// deployment with no key still runs every other node, and those nodes report
 	// the missing key rather than failing obscurely.
@@ -49,6 +62,9 @@ func Load() (Config, error) {
 		SeedEmail:         os.Getenv("SEED_EMAIL"),
 		SeedPassword:      os.Getenv("SEED_PASSWORD"),
 		LogLevel:          envString("LOG_LEVEL", "info"),
+
+		CredentialTestTimeout: envDuration("CREDENTIAL_TEST_TIMEOUT", 10*time.Second),
+		OAuthRedirectURL:      strings.TrimSpace(os.Getenv("OAUTH_REDIRECT_URL")),
 	}
 
 	if cfg.DatabaseURL == "" {
@@ -80,8 +96,29 @@ func Load() (Config, error) {
 	if cfg.WorkerConcurrency < 1 {
 		return cfg, errors.New("WORKER_CONCURRENCY must be at least 1")
 	}
+	if cfg.CredentialTestTimeout <= 0 {
+		return cfg, errors.New("CREDENTIAL_TEST_TIMEOUT must be positive")
+	}
 	cfg.PublicBaseURL = strings.TrimRight(cfg.PublicBaseURL, "/")
+	cfg.OAuthRedirectURL = strings.TrimRight(cfg.OAuthRedirectURL, "/")
 	return cfg, nil
+}
+
+// OAuthCallbackPath is the one route a provider redirects back to. It is a
+// constant rather than a setting so the URL the UI shows, the URL sent with the
+// authorisation request and the URL sent with the token exchange cannot drift.
+const OAuthCallbackPath = "/oauth/callback"
+
+// OAuthRedirectURI is the redirect URI registered with a provider, computed in
+// exactly one place. Both the authorisation start and the callback's token
+// exchange read it from here: a mismatch between the two is the single most
+// common way the flow fails, and the only defence is that neither builds its
+// own.
+func (c Config) OAuthRedirectURI() string {
+	if c.OAuthRedirectURL != "" {
+		return c.OAuthRedirectURL
+	}
+	return c.PublicBaseURL + OAuthCallbackPath
 }
 
 // AIEnabled reports whether the AI nodes have a provider to call.

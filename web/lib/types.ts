@@ -242,3 +242,98 @@ export interface ExecutionStreamEvent {
   execution?: Execution;
   node?: NodeExecution;
 }
+
+// --- credentials ------------------------------------------------------------
+// Mirrors internal/domain/credential.go. A credential's *shape* comes from its
+// type descriptor, exactly as a node's form comes from its node descriptor, so
+// adding an authentication scheme on the Go side needs no change here.
+
+export type AuthKind = "none" | "apiKey" | "basic" | "bearer" | "oauth2";
+
+/** `notice` carries prose and no value; `hidden` carries a value the user never
+ *  sees but which still has to be submitted. */
+export type CredentialFieldType = "string" | "password" | "select" | "notice" | "hidden";
+
+export interface CredentialFieldOption {
+  label: string;
+  value: string;
+}
+
+export interface CredentialField {
+  name: string;
+  label: string;
+  type: CredentialFieldType;
+  required?: boolean;
+  default?: string;
+  placeholder?: string;
+  description?: string;
+  /** Never returned by the API once stored: the form shows "unchanged". */
+  secret?: boolean;
+  options?: CredentialFieldOption[] | null;
+}
+
+export interface CredentialOAuth2Config {
+  authorizeUrl: string;
+  tokenUrl: string;
+  scopes?: string[] | null;
+}
+
+export interface CredentialType {
+  type: string;
+  name: string;
+  icon: string;
+  description?: string;
+  auth: AuthKind;
+  fields: CredentialField[];
+  oauth2?: CredentialOAuth2Config | null;
+  /** Empty means "cannot be tested" — the UI says so rather than offering a
+   *  button that does nothing. */
+  testUrl?: string;
+}
+
+/** What the API returns for a stored credential: everything except the values
+ *  worth protecting. */
+export interface CredentialSummary {
+  id: string;
+  workspaceId: string;
+  type: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  /** Which fields hold a value — the basis of "unchanged" and "Incomplete". */
+  setFields: string[];
+  /** OAuth only: whether the authorisation dance completed. */
+  connected: boolean;
+  /** OAuth access-token expiry. */
+  expiresAt?: string;
+  /** How many nodes reference it, which is what makes a delete confirmation
+   *  honest. */
+  usedByCount: number;
+}
+
+// --- credential responses ---------------------------------------------------
+
+export interface CredentialTypeListResponse {
+  credentialTypes: CredentialType[];
+  /** The one string the user must register with the provider verbatim. */
+  redirectUri: string;
+}
+
+export interface CredentialListResponse {
+  credentials: CredentialSummary[];
+}
+
+export interface CredentialResponse {
+  credential: CredentialSummary;
+}
+
+export interface CredentialTestResult {
+  ok: boolean;
+  status?: number;
+  message?: string;
+}
+
+export interface OAuthStartResponse {
+  url: string;
+  state: string;
+}

@@ -23,6 +23,7 @@ type nodeCall struct {
 	trigger     nodes.TriggerPayload
 	executionID string
 	tools       []nodes.ToolBinding
+	credential  nodes.CredentialResolver
 	opts        Options
 }
 
@@ -162,6 +163,7 @@ func (c nodeCall) execContext(ctx context.Context, item domain.Item, index int) 
 		ItemIndex:   index,
 		NodeOutputs: c.nodeOutputs,
 		Tools:       c.tools,
+		Credential:  c.credential,
 		LLM:         c.opts.LLM,
 		Trigger:     c.trigger,
 		ExecutionID: c.executionID,

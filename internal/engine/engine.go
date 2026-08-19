@@ -46,6 +46,11 @@ type Options struct {
 	// report that no provider is configured, which is the honest answer for a
 	// deployment with no API key.
 	LLM *llm.Registry
+
+	// Credentials resolves a node's configured credential. Nil is legal — a
+	// build with no vault — and a node that names a credential then fails
+	// saying so rather than sending an unauthenticated request.
+	Credentials CredentialProvider
 }
 
 func (o Options) withDefaults() Options {
@@ -333,6 +338,7 @@ func (r *run) step(ctx, runCtx context.Context, node domain.GraphNode) (bool, er
 		inputs:      inputs,
 		nodeOutputs: r.byName,
 		tools:       r.bindTools(node),
+		credential:  r.bindCredential(node),
 		trigger:     r.trigger,
 		executionID: r.exec.ID,
 		opts:        r.e.opts,

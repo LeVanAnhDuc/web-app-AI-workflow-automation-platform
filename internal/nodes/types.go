@@ -185,11 +185,37 @@ type ExecContext struct {
 	// failing obscurely.
 	LLM *llm.Registry
 
+	// Credential attaches this node's configured credential to an outgoing
+	// request. It is nil when the node has none, which a node that requires one
+	// must report by name rather than sending an unauthenticated request.
+	Credential CredentialResolver
+
 	Trigger     TriggerPayload
 	ExecutionID string
 	HTTPClient  *http.Client
 	Logger      *slog.Logger
 }
+
+// CredentialResolver attaches a node's configured credential to a request.
+//
+// A node never sees the secret: it hands over the request and gets back a signed
+// one. That keeps the decrypted value inside internal/credentials, so a node
+// cannot log or forward it even by accident.
+type CredentialResolver interface {
+	// Apply signs the request. It refreshes an expired OAuth token first, so a
+	// node does not have to know that tokens expire.
+	Apply(ctx context.Context, req *http.Request) error
+
+	// Type is the credential type id, for a message that names what to fix.
+	Type() string
+
+	// Name is the credential's display name, for the same reason.
+	Name() string
+}
+
+// HasCredential reports whether a credential is configured, so a node can tell
+// "none set" apart from "set but broken".
+func (ec ExecContext) HasCredential() bool { return ec.Credential != nil }
 
 // ToolBinding is one node offered to a model as a callable tool. The engine
 // builds these: Invoke runs the target node through the same retry, timeout and

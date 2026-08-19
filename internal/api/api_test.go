@@ -11,6 +11,7 @@ import (
 
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/auth"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/config"
+	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/credentials"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/domain"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/nodes"
 )
@@ -20,6 +21,10 @@ const (
 	testUserID    = "user-1"
 	testEmail     = "ha.nguyen@acme.vn"
 	testPassword  = "flowgrid123"
+
+	// testCredentialKey is exactly 32 bytes, so the real sealer is used: the
+	// handler tests encrypt and decrypt for real rather than around a stub.
+	testCredentialKey = "0123456789abcdef0123456789abcdef"
 )
 
 type harness struct {
@@ -28,6 +33,12 @@ type harness struct {
 	queue  *fakeQueue
 	signer *auth.Signer
 	token  string
+
+	// creds is the real vault over the fake store, and credTypes is its
+	// registry — mutable, so a test can register a type that points at its own
+	// stub provider.
+	creds     *credentials.Service
+	credTypes *credentials.Registry
 }
 
 func newHarness(t *testing.T) *harness {
@@ -57,16 +68,57 @@ func newHarness(t *testing.T) *harness {
 		t.Fatalf("Issue: %v", err)
 	}
 
+	credTypes := credentials.DefaultRegistry()
+	vault, err := credentials.New(st, []byte(testCredentialKey), credentials.Options{Types: credTypes})
+	if err != nil {
+		t.Fatalf("credentials.New: %v", err)
+	}
+
 	q := &fakeQueue{}
 	router := NewRouter(Deps{
-		Store:    st,
-		Queue:    q,
-		Registry: nodes.Default(),
-		Signer:   signer,
-		Config:   config.Config{PublicBaseURL: "http://localhost:3000"},
+		Store:       st,
+		Queue:       q,
+		Registry:    nodes.Default(),
+		Signer:      signer,
+		Config:      config.Config{PublicBaseURL: "http://localhost:3000"},
+		Credentials: vault,
 	})
 
-	return &harness{router: router, store: st, queue: q, signer: signer, token: token}
+	return &harness{
+		router: router, store: st, queue: q, signer: signer, token: token,
+		creds: vault, credTypes: credTypes,
+	}
+}
+
+// doAs issues a request as a different workspace, which is how the scoping
+// tests prove that one tenant cannot see another's rows.
+func (h *harness) doAs(t *testing.T, workspaceID, method, path string, body any) *httptest.ResponseRecorder {
+	t.Helper()
+	token, _, err := h.signer.Issue("user-x", workspaceID, "x@acme.vn", "owner", time.Hour)
+	if err != nil {
+		t.Fatalf("Issue: %v", err)
+	}
+
+	var reader *bytes.Reader
+	if body != nil {
+		raw, err := json.Marshal(body)
+		if err != nil {
+			t.Fatalf("marshal body: %v", err)
+		}
+		reader = bytes.NewReader(raw)
+	} else {
+		reader = bytes.NewReader(nil)
+	}
+
+	r := httptest.NewRequest(method, path, reader)
+	if body != nil {
+		r.Header.Set("Content-Type", "application/json")
+	}
+	r.AddCookie(&http.Cookie{Name: auth.CookieName, Value: token})
+
+	w := httptest.NewRecorder()
+	h.router.ServeHTTP(w, r)
+	return w
 }
 
 func (h *harness) do(t *testing.T, method, path string, body any, authenticated bool) *httptest.ResponseRecorder {

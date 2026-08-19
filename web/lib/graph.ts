@@ -254,6 +254,14 @@ export function validateGraph(graph: Graph, descriptors: Record<string, NodeDesc
       problems.push(`Node “${n.name}” has unknown type ${n.type}.`);
       continue;
     }
+    // A node that requires a credential and has none chosen will fail the moment
+    // it runs. Saying so here costs nothing; finding out from a failed 3am
+    // scheduled run costs a morning. A node whose credential is optional — the
+    // AI nodes, which fall back to a server-side key — is left alone.
+    if (d.Credential && !d.CredentialOptional && !n.credentialId) {
+      problems.push(`Node “${n.name}” needs a credential; choose or create one.`);
+    }
+
     for (const p of d.Params ?? []) {
       if (!p.Required) continue;
       if (!isParamVisible(p, n.params)) continue;

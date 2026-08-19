@@ -38,6 +38,9 @@ func (AIAgent) Descriptor() Descriptor {
 		},
 		Outputs:    MainOut,
 		Credential: "anthropicApi",
+		// Phase 2 reads the key from the environment, so a workspace credential
+		// is an upgrade rather than a prerequisite.
+		CredentialOptional: true,
 		Params: []ParamSpec{
 			{
 				Name:        "model",

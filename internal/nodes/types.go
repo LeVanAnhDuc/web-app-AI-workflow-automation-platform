@@ -111,7 +111,14 @@ type Descriptor struct {
 	Outputs     []Handle    `json:"Outputs"`
 	Params      []ParamSpec `json:"Params"`
 	Credential  string      `json:"Credential,omitempty"`
-	IsTrigger   bool        `json:"IsTrigger,omitempty"`
+
+	// CredentialOptional means the node still runs without one. The AI nodes
+	// set it because they fall back to ANTHROPIC_API_KEY; a connector does not,
+	// because there is nothing to fall back to. The editor uses this to decide
+	// whether a missing credential blocks a save or is merely worth mentioning.
+	CredentialOptional bool `json:"CredentialOptional,omitempty"`
+
+	IsTrigger bool `json:"IsTrigger,omitempty"`
 }
 
 // KeyValue is one row of a keyValue parameter, already expression-resolved.

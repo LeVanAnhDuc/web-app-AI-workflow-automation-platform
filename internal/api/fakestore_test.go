@@ -24,6 +24,10 @@ type fakeStore struct {
 	webhooks   map[string]domain.Webhook         // path -> hook
 	summaries  []domain.WorkflowSummary
 
+	// credentials holds the sealed blob and nothing more, like the real table.
+	credentials map[string]*fakeCredential
+	credOrder   []string
+
 	replacedWebhooks  map[string][]domain.Webhook
 	replacedSchedules map[string][]domain.Schedule
 
@@ -44,6 +48,7 @@ func newFakeStore() *fakeStore {
 		webhooks:          map[string]domain.Webhook{},
 		replacedWebhooks:  map[string][]domain.Webhook{},
 		replacedSchedules: map[string][]domain.Schedule{},
+		credentials:       map[string]*fakeCredential{},
 	}
 }
 
@@ -368,4 +373,131 @@ func (q *fakeQueue) count() int {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	return len(q.enqueued)
+}
+
+/* --- credentials -----------------------------------------------------------
+
+   The credential half of the fake store. It holds the sealed blob exactly as
+   the real one does — opaque bytes it never looks inside — so the handler tests
+   exercise the real credentials.Service, real sealing included, without a
+   database. A fake that returned plaintext here would test nothing worth
+   testing.
+   --------------------------------------------------------------------------- */
+
+// fakeCredential is one stored row plus its sealed blob.
+type fakeCredential struct {
+	rec    domain.Credential
+	sealed []byte
+}
+
+func (f *fakeStore) CreateCredential(_ context.Context, workspaceID, credType, name string, sealed []byte) (domain.Credential, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	rec := domain.Credential{
+		ID:          f.nextID("cred"),
+		WorkspaceID: workspaceID,
+		Type:        credType,
+		Name:        name,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+	f.credentials[rec.ID] = &fakeCredential{rec: rec, sealed: append([]byte(nil), sealed...)}
+	f.credOrder = append(f.credOrder, rec.ID)
+	return rec, nil
+}
+
+func (f *fakeStore) Credential(_ context.Context, workspaceID, id string) (domain.Credential, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	c, ok := f.credentials[id]
+	if !ok || c.rec.WorkspaceID != workspaceID {
+		return domain.Credential{}, domain.ErrNotFound
+	}
+	return c.rec, nil
+}
+
+func (f *fakeStore) CredentialSealed(_ context.Context, workspaceID, id string) (domain.Credential, []byte, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	c, ok := f.credentials[id]
+	if !ok || c.rec.WorkspaceID != workspaceID {
+		return domain.Credential{}, nil, domain.ErrNotFound
+	}
+	return c.rec, c.sealed, nil
+}
+
+func (f *fakeStore) ListCredentials(_ context.Context, workspaceID, credType string) ([]domain.Credential, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	var out []domain.Credential
+	for _, id := range f.credOrder {
+		c := f.credentials[id]
+		if c == nil || c.rec.WorkspaceID != workspaceID {
+			continue
+		}
+		if credType != "" && c.rec.Type != credType {
+			continue
+		}
+		out = append(out, c.rec)
+	}
+	return out, nil
+}
+
+func (f *fakeStore) UpdateCredential(_ context.Context, workspaceID, id string, name *string, sealed []byte) (domain.Credential, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	c, ok := f.credentials[id]
+	if !ok || c.rec.WorkspaceID != workspaceID {
+		return domain.Credential{}, domain.ErrNotFound
+	}
+	if name != nil {
+		c.rec.Name = *name
+	}
+	// A nil blob leaves the stored secret alone, exactly like the SQL COALESCE.
+	if len(sealed) > 0 {
+		c.sealed = append([]byte(nil), sealed...)
+	}
+	c.rec.UpdatedAt = time.Now()
+	return c.rec, nil
+}
+
+func (f *fakeStore) DeleteCredential(_ context.Context, workspaceID, id string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	c, ok := f.credentials[id]
+	if !ok || c.rec.WorkspaceID != workspaceID {
+		return domain.ErrNotFound
+	}
+	delete(f.credentials, id)
+	return nil
+}
+
+func (f *fakeStore) CredentialUsage(_ context.Context, workspaceID string) (map[string]int, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	out := map[string]int{}
+	for _, v := range f.versions {
+		wf, ok := f.workflows[v.WorkflowID]
+		if !ok || wf.WorkspaceID != workspaceID {
+			continue
+		}
+		for _, n := range v.Graph.Nodes {
+			if n.CredentialID != nil && *n.CredentialID != "" {
+				out[*n.CredentialID]++
+			}
+		}
+	}
+	return out, nil
+}
+
+func (f *fakeStore) TouchCredential(_ context.Context, workspaceID, id string, sealed []byte, at time.Time) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	c, ok := f.credentials[id]
+	if !ok || c.rec.WorkspaceID != workspaceID {
+		return domain.ErrNotFound
+	}
+	c.sealed = append([]byte(nil), sealed...)
+	c.rec.UpdatedAt = at
+	return nil
 }

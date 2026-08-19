@@ -122,6 +122,10 @@ export interface NodeDescriptor {
   Outputs: Handle[] | null;
   Params: ParamSpec[] | null;
   Credential: string;
+  /** The node still runs without one — the AI nodes fall back to a server-side
+   *  key, a connector has nothing to fall back to. Decides whether a missing
+   *  credential blocks a save or is merely worth mentioning. */
+  CredentialOptional?: boolean;
   IsTrigger: boolean;
 }
 

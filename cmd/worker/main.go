@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/config"
+	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/connectors"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/credentials"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/domain"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/engine"
@@ -65,7 +66,7 @@ func run() error {
 		return err
 	}
 
-	eng := engine.New(st, nodes.Default(), engine.Options{
+	eng := engine.New(st, connectors.Register(nodes.Default()), engine.Options{
 		HTTPClient: &http.Client{
 			// A node has its own per-node timeout; this is the backstop for a
 			// server that accepts the connection and then goes silent.

@@ -25,10 +25,12 @@ export function Logo({ size = 28 }: { size?: number }) {
   );
 }
 
-const tabs = [
+// `disabled` stays on the shape: a tab can still be shipped dark while the
+// screen behind it is being built.
+const tabs: { href: string; label: string; disabled?: boolean }[] = [
   { href: "/workflows", label: "Workflows" },
   { href: "/executions", label: "Executions" },
-  { href: "/credentials", label: "Credentials", disabled: true },
+  { href: "/credentials", label: "Credentials" },
 ];
 
 /**

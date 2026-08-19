@@ -19,6 +19,7 @@ import (
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/api"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/auth"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/config"
+	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/connectors"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/credentials"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/llm"
 	"github.com/LeVanAnhDuc/app-AI-workflow-automation-platform/internal/nodes"
@@ -84,7 +85,7 @@ func run(migrateOnly bool) error {
 	handler := api.NewRouter(api.Deps{
 		Store:    st,
 		Queue:    queue.New(st.Pool(), "api"),
-		Registry: nodes.Default(),
+		Registry: connectors.Register(nodes.Default()),
 		Signer:   signer,
 		Config:   cfg,
 		Logger:   log,

@@ -90,6 +90,9 @@ const agentDescriptor: NodeDescriptor = {
   Outputs: [{ Name: "main", Label: "Output" }],
   Params: [{ Name: "toolDescriptions", Label: "Tool descriptions", Type: "keyValue" }],
   Credential: "anthropicApi",
+  // As in the real descriptor: the AI nodes fall back to a server-side key, so
+  // a workspace credential is an upgrade rather than a prerequisite.
+  CredentialOptional: true,
   IsTrigger: false,
 };
 
@@ -350,6 +353,41 @@ describe("validateGraph", () => {
       edges: [{ id: "e1", source: "n1", sourceHandle: "main", target: "n2", targetHandle: "main" }],
     };
     expect(validateGraph(graph, { ...descriptors, set: gated })).toEqual([]);
+  });
+
+  it("reports a node that needs a credential but has none chosen", () => {
+    const needsCredential: NodeDescriptor = {
+      ...httpDescriptor,
+      Type: "slack",
+      Name: "Slack",
+      Credential: "slackOAuth2",
+    };
+    const graph: Graph = {
+      nodes: [node("n1", "Start", "trigger.manual"), node("n2", "Post", "slack")],
+      edges: [{ id: "e1", source: "n1", sourceHandle: "main", target: "n2", targetHandle: "main" }],
+    };
+
+    expect(validateGraph(graph, { ...descriptors, slack: needsCredential })).toContain(
+      "Node “Post” needs a credential; choose or create one.",
+    );
+  });
+
+  it("says nothing once a credential is chosen", () => {
+    const needsCredential: NodeDescriptor = {
+      ...httpDescriptor,
+      Type: "slack",
+      Name: "Slack",
+      Credential: "slackOAuth2",
+    };
+    const graph: Graph = {
+      nodes: [
+        node("n1", "Start", "trigger.manual"),
+        { ...node("n2", "Post", "slack"), credentialId: "cred-1" },
+      ],
+      edges: [{ id: "e1", source: "n1", sourceHandle: "main", target: "n2", targetHandle: "main" }],
+    };
+
+    expect(validateGraph(graph, { ...descriptors, slack: needsCredential })).toEqual([]);
   });
 
   it("reports an unknown node type", () => {

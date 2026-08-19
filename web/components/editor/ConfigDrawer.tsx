@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import { Fragment, useMemo, useState } from "react";
 import { AgentOutputView } from "@/components/agent/AgentTranscript";
+import { CredentialPicker } from "@/components/credentials/CredentialPicker";
 import { hasAgentTranscript } from "@/components/agent/transcript";
 import { Button, ErrorNotice, Field, IconButton, Input, JsonView, Toggle } from "@/components/ui";
 import { Icons, NodeIcon } from "@/components/ui/icons";
@@ -154,13 +155,13 @@ export function ConfigDrawer() {
         {tab === "parameters" && (
           <>
             {descriptor?.Credential && (
-              <div className="flex items-start gap-2.5 rounded-[10px] border border-line bg-white/3 px-3.5 py-3">
-                <Icons.lock size={14} className="mt-px shrink-0 text-ink-4" />
-                <p className="text-xs leading-relaxed text-ink-3">
-                  Needs a <span className="font-mono">{descriptor.Credential}</span> credential.
-                  The credential vault arrives in phase 3.
-                </p>
-              </div>
+              <CredentialPicker
+                typeId={descriptor.Credential}
+                value={node.credentialId}
+                // The same update path every other node field uses, so the
+                // credential travels with the graph on save.
+                onChange={(credentialId) => updateNode(node.id, { credentialId })}
+              />
             )}
             {!descriptor && (
               <ErrorNotice>

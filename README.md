@@ -12,6 +12,11 @@ credential vault with OAuth2 and real app connectors. The designs that govern th
 [Phase 2 — AI](docs/superpowers/specs/2026-08-18-workflow-platform-ai-design.md) and
 [Phase 3 — Connectors](docs/superpowers/specs/2026-08-19-workflow-platform-connectors-design.md).
 
+**Read [`docs/SESSION-LOG.md`](docs/SESSION-LOG.md) first.** It records why the architecture is
+the way it is, every defect found while building it, and — most importantly — exactly which
+paths have been verified against a running system and which have only ever been exercised
+against a stub.
+
 ![Workflow editor](docs/screenshots/editor-run.png)
 
 ## Stack

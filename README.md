@@ -5,11 +5,12 @@ runs it — triggered by hand, by an incoming webhook, or on a cron schedule. Ev
 recorded node by node, so it can be inspected, replayed, and resumed from the node that
 failed rather than from the beginning.
 
-Phases 1 and 2 are implemented: the canvas editor, the execution engine, the execution
-history, and the AI nodes — including an agent that calls other nodes in the graph as tools.
-The designs that govern them are
-[Phase 1 — Core](docs/superpowers/specs/2026-08-18-workflow-platform-core-design.md) and
-[Phase 2 — AI](docs/superpowers/specs/2026-08-18-workflow-platform-ai-design.md).
+Phases 1 to 3 are implemented: the canvas editor, the execution engine, the execution history,
+the AI nodes — including an agent that calls other nodes in the graph as tools — and a
+credential vault with OAuth2 and real app connectors. The designs that govern them are
+[Phase 1 — Core](docs/superpowers/specs/2026-08-18-workflow-platform-core-design.md),
+[Phase 2 — AI](docs/superpowers/specs/2026-08-18-workflow-platform-ai-design.md) and
+[Phase 3 — Connectors](docs/superpowers/specs/2026-08-19-workflow-platform-connectors-design.md).
 
 ![Workflow editor](docs/screenshots/editor-run.png)
 
@@ -22,6 +23,7 @@ The designs that govern them are
 | Storage | Postgres — application state, execution log, and the job queue |
 | Expressions | `expr-lang/expr` for `{{ }}`, `goja` for the Code node |
 | AI | `anthropic-sdk-go` behind a provider interface in `internal/llm` |
+| Secrets | AES-256-GCM, sealed and opened only inside `internal/credentials` |
 
 No Redis and no external queue broker: the queue is a Postgres table claimed with
 `FOR UPDATE SKIP LOCKED`.
@@ -76,11 +78,30 @@ Set `ANTHROPIC_API_KEY` to enable the AI nodes. Leave it unset and everything el
 works; those two nodes then say what to set rather than failing obscurely. Per-workspace keys
 land with the credential vault in Phase 3 — until then one key serves the deployment.
 
-Phases 3 and 4 (app connectors with a credential vault, multi-tenant workspaces) are described
-in the Phase 1 spec. The room for them already exists: `workspace_id` is on every root table
-and required by every store call, the `credentials` table and per-node `credentialId` are in
-place along with the AES-256-GCM sealer, and a new node type is one Go file — the frontend
-renders its whole configuration form from the descriptor the API returns.
+## What Phase 3 adds
+
+- **A credential vault** — encrypted secrets a workspace owns. `internal/credentials` is the
+  only package that holds the key: the store handles a blob it cannot open, the API returns
+  summaries it never decrypts, and a node never sees a secret at all — it hands over a request
+  and gets a signed one back.
+- **OAuth2** — the authorisation-code grant with refresh, for Slack, Gmail and Google Sheets.
+  The redirect URL is shown with a copy button, because registering a different one with the
+  provider is the most common way the flow fails.
+- **Connectors as declarations** — Slack, Gmail and Google Sheets are data files, and one
+  generic executor runs any of them. A connector's node descriptor gates each operation's
+  parameters with `ShowWhen`, so the editor renders a correct form for an app nobody wrote UI
+  for.
+
+A secret is never returned by any endpoint: the summary says which fields are *set*, which is
+what lets an edit form show "unchanged" instead of an empty box that looks like data loss.
+
+**No live OAuth against Google or Slack has been run** — that needs registered client
+credentials and a publicly reachable redirect URI. The flow is tested against a stub that
+plays both endpoints, including refresh and a replayed state.
+
+Phase 4 (multi-tenant workspaces, RBAC, quota, billing) is described in the Phase 1 spec. The
+room for it already exists: `workspace_id` is on every root table and required by every store
+call, and a new node type is still one Go file.
 
 ## Screens
 
@@ -92,6 +113,8 @@ renders its whole configuration form from the descriptor the API returns.
 | Node picker, driven by the keyboard | Execution history |
 | ![Agent editor](docs/screenshots/agent-editor.png) | ![Agent transcript](docs/screenshots/agent-transcript.png) |
 | An agent with a node wired into its tool handle | The transcript: every turn and tool call |
+| ![Credentials](docs/screenshots/credentials.png) | ![Credential form](docs/screenshots/credential-form.png) |
+| The vault, with honest per-credential status | A form rendered entirely from the type descriptor |
 
 ## Layout
 
@@ -101,6 +124,8 @@ cmd/worker     job claimer, execution engine, schedule ticker
 internal/
   domain       items, graph, statuses, error shape
   expr         quote-aware {{ }} evaluator
+  credentials  the vault: sealing, the type registry, OAuth2
+  connectors   app declarations — Slack, Gmail, Google Sheets
   llm          the language-model provider seam and the Anthropic adapter
   nodes        the node contract and one file per node type
   engine       graph runner: order, retry, skip, resume

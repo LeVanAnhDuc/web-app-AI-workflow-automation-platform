@@ -3,7 +3,7 @@ import { Providers } from "@/components/layout/Providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Flowgrid",
+  title: "Ducker Flow Grid",
   description: "AI workflow automation platform",
 };
 

@@ -1,4 +1,4 @@
-# Flowgrid — Phase 3 (Connectors)
+# Ducker Flow Grid — Phase 3 (Connectors)
 
 Status: implemented 2026-08-19
 Builds on [Phase 1 — Core](2026-08-18-workflow-platform-core-design.md) and

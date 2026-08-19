@@ -3,7 +3,7 @@ import { Logo } from "@/components/layout/Topbar";
 import { LoginForm, SelfHostedFootnote } from "./LoginForm";
 
 export const metadata: Metadata = {
-  title: "Sign in · Flowgrid",
+  title: "Sign in · Ducker Flow Grid",
 };
 
 /**
@@ -35,7 +35,7 @@ export default function LoginPage() {
             <Logo size={46} />
           </div>
           <div className="flex flex-col items-center gap-[7px]">
-            <h1 className="text-2xl font-extrabold tracking-[-0.025em]">Sign in to Flowgrid</h1>
+            <h1 className="text-2xl font-extrabold tracking-[-0.025em]">Sign in to Ducker Flow Grid</h1>
             <p className="text-[13.5px] text-ink-3">
               Enter your workspace credentials to continue.
             </p>

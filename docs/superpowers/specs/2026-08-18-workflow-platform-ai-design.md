@@ -1,4 +1,4 @@
-# Flowgrid — Phase 2 (AI)
+# Ducker Flow Grid — Phase 2 (AI)
 
 Status: implemented 2026-08-18
 Builds on [Phase 1](2026-08-18-workflow-platform-core-design.md), which stays the authority for

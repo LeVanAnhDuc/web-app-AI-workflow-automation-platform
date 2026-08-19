@@ -1,4 +1,4 @@
-# Flowgrid — AI Workflow Automation Platform, Phase 1 (Core)
+# Ducker Flow Grid — AI Workflow Automation Platform, Phase 1 (Core)
 
 Status: approved 2026-08-18
 Scope: Phase 1 only. Phases 2–4 appear here only where Phase 1 must leave room for them.

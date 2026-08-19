@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { CredentialsScreen } from "@/components/credentials/CredentialsScreen";
 
-export const metadata = { title: "Credentials · Flowgrid" };
+export const metadata = { title: "Credentials · Ducker Flow Grid" };
 
 export default function CredentialsPage() {
   // The screen reads the OAuth callback's query string, which Next only allows

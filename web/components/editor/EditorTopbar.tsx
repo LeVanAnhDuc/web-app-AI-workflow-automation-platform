@@ -46,7 +46,7 @@ export function EditorTopbar({
     <header className="flex h-14 shrink-0 items-center gap-4 border-b border-line bg-panel px-4.5">
       <Link href="/workflows" className="flex items-center gap-2.5 text-ink hover:text-ink">
         <Logo />
-        <span className="text-[15px] font-bold tracking-[-0.01em]">Flowgrid</span>
+        <span className="text-[15px] font-bold tracking-[-0.01em]">Ducker Flow Grid</span>
       </Link>
 
       <span className="h-5 w-px bg-line-strong" aria-hidden />

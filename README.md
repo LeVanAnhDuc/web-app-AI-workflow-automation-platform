@@ -1,4 +1,4 @@
-# Flowgrid — AI Workflow Automation Platform
+# Ducker Flow Grid — AI Workflow Automation Platform
 
 A visual workflow automation platform: draw a graph of nodes, connect them, and the platform
 runs it — triggered by hand, by an incoming webhook, or on a cron schedule. Every run is

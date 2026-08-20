@@ -1,4 +1,11 @@
-# Ducker Flow Grid (app-AI-workflow-automation-platform)
+# Ducker Flow Grid (web-app-AI-workflow-automation-platform)
+
+> **Known debt:** `go.mod` still declares
+> `module github.com/LeVanAnhDuc/app-AI-workflow-automation-platform` — the slug the
+> repo carried before it was renamed on 2026-08-20. Builds still resolve through
+> GitHub's rename redirect. Fixing it means rewriting the module path plus the
+> imports in 79 `.go` files, and verifying that needs Go 1.25 (`go.mod` requires
+> 1.25.7); do not attempt it on a toolchain that cannot compile the module.
 
 A visual workflow automation platform: users draw a graph of nodes on a canvas and the platform
 runs it — by hand, by webhook, or on a cron schedule — recording every run node by node so it can

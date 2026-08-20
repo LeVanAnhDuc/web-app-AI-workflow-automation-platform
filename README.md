@@ -19,7 +19,80 @@ against a stub.
 
 ![Workflow editor](docs/screenshots/editor-run.png)
 
-## Stack
+## Features
+
+- **Graph editor**
+  - A React Flow canvas: place nodes, drag edges between handles, rename in place, and
+    configure the selected node in a side drawer.
+  - A node picker driven by the keyboard, and a parameter form rendered from each node type's
+    descriptor rather than hand-written per node.
+  - Saving the graph creates a new version, and an execution points at the version it ran, so
+    an old execution's replay never drifts when the workflow is edited.
+- **Triggers**
+  - Manual, from the editor or the workflow list.
+  - Webhook — a public `POST /webhook/<path>` that answers `202` immediately.
+  - Schedule — five-field cron, with a per-workflow timezone.
+- **Execution engine**
+  - Every node takes and returns a list of items, so "for each of these ten records, call an
+    API" needs no loop node.
+  - Per-node retry with backoff, per-node timeout, continue-on-fail, and a per-execution
+    ceiling.
+  - Output is persisted after every node, so a crashed worker resumes without re-issuing
+    completed HTTP calls, and "Retry from failed node" restarts at the failure with the
+    stored input.
+  - Jobs are claimed from a Postgres table with `FOR UPDATE SKIP LOCKED` — a worker claims only
+    the job kinds it can run, and concurrent workers never take the same job.
+- **Node library**
+  - HTTP Request, Code (JavaScript under goja), IF, Set, Merge.
+  - Expressions everywhere: `{{ $json.field }}`, `{{ $node["Other node"].json.id }}`,
+    `{{ $items }}`, `{{ $itemIndex }}`, `{{ $now }}`, `{{ $execution.id }}`. Reaching through a
+    key that is not there yields nothing rather than failing the run, because workflow data is
+    shaped by whoever sends it.
+- **AI nodes**
+  - **LLM node** — one prompt per item, optionally constrained to a JSON schema so downstream
+    nodes can rely on the reply's shape.
+  - **AI Agent node** — a tool-calling loop where the tools are *other nodes in the graph*,
+    wired into the agent's second input handle so the relationship is visible on the canvas. A
+    tool edge is a capability edge, not a data edge: the agent does not wait on its tools, and a
+    node that exists only to be a tool is neither run by the main flow nor greyed out as
+    skipped.
+  - **A transcript worth reading** — the agent's output carries every turn, its token usage, and
+    every tool call with arguments and result. An agent that answers wrongly is only debuggable
+    if you can see what it looked at.
+  - **A provider seam** — `internal/llm` is the only package that knows a vendor SDK exists.
+    Set `ANTHROPIC_API_KEY` to enable the AI nodes; leave it unset and everything else still
+    works, and those two nodes say what to set rather than failing obscurely.
+- **Credential vault**
+  - Encrypted secrets a workspace owns. `internal/credentials` is the only package that holds
+    the key: the store handles a blob it cannot open, the API returns summaries it never
+    decrypts, and a node never sees a secret at all — it hands over a request and gets a signed
+    one back.
+  - A secret is never returned by any endpoint: the summary says which fields are *set*, which
+    is what lets an edit form show "unchanged" instead of an empty box that looks like data
+    loss.
+- **Connectors and OAuth2**
+  - The authorisation-code grant with refresh, for Slack, Gmail and Google Sheets. The redirect
+    URL is shown with a copy button, because registering a different one with the provider is
+    the most common way the flow fails.
+  - **Connectors as declarations** — Slack, Gmail and Google Sheets are data files, and one
+    generic executor runs any of them. A connector's node descriptor gates each operation's
+    parameters with `ShowWhen`, so the editor renders a correct form for an app nobody wrote UI
+    for.
+- **Execution history**
+  - A run list with filters, and an execution detail view with a read-only graph replay, a node
+    timeline, and the input and output of each node.
+  - Live progress over SSE while a run is in flight, in both the editor's log panel and the
+    execution detail.
+
+**No live OAuth against Google or Slack has been run** — that needs registered client
+credentials and a publicly reachable redirect URI. The flow is tested against a stub that
+plays both endpoints, including refresh and a replayed state.
+
+Phase 4 (multi-tenant workspaces, RBAC, quota, billing) is described in the Phase 1 spec. The
+room for it already exists: `workspace_id` is on every root table and required by every store
+call, and a new node type is still one Go file.
+
+## Tech Stack
 
 | Part | Choice |
 |---|---|
@@ -33,7 +106,7 @@ against a stub.
 No Redis and no external queue broker: the queue is a Postgres table claimed with
 `FOR UPDATE SKIP LOCKED`.
 
-## Running it
+## Running
 
 ```bash
 cp .env.example .env          # then change JWT_SECRET and CREDENTIAL_KEY
@@ -46,67 +119,6 @@ make web                      # :3000, proxies /api and /webhook to the Go API
 
 Sign in with the `SEED_EMAIL` / `SEED_PASSWORD` pair from your `.env`; the API creates that
 workspace and user on boot, idempotently.
-
-## What Phase 1 can do
-
-- **Triggers** — Manual, Webhook (a public `POST /webhook/<path>` that answers `202`
-  immediately), and Schedule (five-field cron, per-workflow timezone).
-- **Nodes** — HTTP Request, Code (JavaScript under goja), IF, Set, Merge.
-- **Expressions** — `{{ $json.field }}`, `{{ $node["Other node"].json.id }}`, `{{ $items }}`,
-  `{{ $itemIndex }}`, `{{ $now }}`, `{{ $execution.id }}`. Reaching through a key that is not
-  there yields nothing rather than failing the run, because workflow data is shaped by
-  whoever sends it.
-- **Item semantics** — every node takes and returns a list of items, so "for each of these
-  ten records, call an API" needs no loop node.
-- **Error handling** — per-node retry with backoff, per-node timeout, continue-on-fail, and
-  a per-execution ceiling.
-- **Resume** — output is persisted after every node, so a crashed worker resumes without
-  re-issuing completed HTTP calls, and "Retry from failed node" restarts at the failure with
-  the stored input.
-- **Versioning** — saving the graph creates a new version, and an execution points at the
-  version it ran. An old execution's replay never drifts when the workflow is edited.
-
-## What Phase 2 adds
-
-- **LLM node** — one prompt per item, optionally constrained to a JSON schema so downstream
-  nodes can rely on the reply's shape.
-- **AI Agent node** — a tool-calling loop where the tools are *other nodes in the graph*,
-  wired into the agent's second input handle so the relationship is visible on the canvas. A
-  tool edge is a capability edge, not a data edge: the agent does not wait on its tools, and a
-  node that exists only to be a tool is neither run by the main flow nor greyed out as skipped.
-- **A transcript worth reading** — the agent's output carries every turn, its token usage, and
-  every tool call with arguments and result. An agent that answers wrongly is only debuggable
-  if you can see what it looked at.
-- **A provider seam** — `internal/llm` is the only package that knows a vendor SDK exists.
-
-Set `ANTHROPIC_API_KEY` to enable the AI nodes. Leave it unset and everything else still
-works; those two nodes then say what to set rather than failing obscurely. Per-workspace keys
-land with the credential vault in Phase 3 — until then one key serves the deployment.
-
-## What Phase 3 adds
-
-- **A credential vault** — encrypted secrets a workspace owns. `internal/credentials` is the
-  only package that holds the key: the store handles a blob it cannot open, the API returns
-  summaries it never decrypts, and a node never sees a secret at all — it hands over a request
-  and gets a signed one back.
-- **OAuth2** — the authorisation-code grant with refresh, for Slack, Gmail and Google Sheets.
-  The redirect URL is shown with a copy button, because registering a different one with the
-  provider is the most common way the flow fails.
-- **Connectors as declarations** — Slack, Gmail and Google Sheets are data files, and one
-  generic executor runs any of them. A connector's node descriptor gates each operation's
-  parameters with `ShowWhen`, so the editor renders a correct form for an app nobody wrote UI
-  for.
-
-A secret is never returned by any endpoint: the summary says which fields are *set*, which is
-what lets an edit form show "unchanged" instead of an empty box that looks like data loss.
-
-**No live OAuth against Google or Slack has been run** — that needs registered client
-credentials and a publicly reachable redirect URI. The flow is tested against a stub that
-plays both endpoints, including refresh and a replayed state.
-
-Phase 4 (multi-tenant workspaces, RBAC, quota, billing) is described in the Phase 1 spec. The
-room for it already exists: `workspace_id` is on every root table and required by every store
-call, and a new node type is still one Go file.
 
 ## Screens
 
@@ -121,7 +133,7 @@ call, and a new node type is still one Go file.
 | ![Credentials](docs/screenshots/credentials.png) | ![Credential form](docs/screenshots/credential-form.png) |
 | The vault, with honest per-credential status | A form rendered entirely from the type descriptor |
 
-## Layout
+## Project structure
 
 ```
 cmd/api        REST API, SSE, public webhook ingress
@@ -151,6 +163,8 @@ docs           spec and screenshots
 make test-go     # engine, expressions, nodes, queue, API handlers, domain
 make test-web    # typecheck + Vitest
 ```
+
+15 Go packages, 119 frontend unit tests, and 2 Playwright end-to-end tests.
 
 The store, queue and integration suites need a real database and skip without one:
 

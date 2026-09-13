@@ -25,7 +25,7 @@ make web                # run Next.js on :3000, proxying /api and /webhook
 make build              # go build ./cmd/api ./cmd/worker into bin/, plus next build
 make test               # test-go + test-web
 make test-go            # go test ./...
-make test-web           # cd web && npm run typecheck && npm test (Vitest)
+make test-web           # cd web && pnpm typecheck && pnpm test (Vitest)
 make test-e2e           # Playwright; needs Postgres, cmd/api and cmd/worker running
 make fmt                # go fmt ./...
 make tidy               # go mod tidy

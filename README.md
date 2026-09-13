@@ -177,7 +177,7 @@ The end-to-end suite drives the real app in a browser, so it needs Postgres, `cm
 `cmd/worker` running:
 
 ```bash
-cd web && npm run test:e2e
+cd web && pnpm test:e2e
 ```
 
 It signs in, builds a two-node workflow on the canvas, connects it, saves, runs it, and

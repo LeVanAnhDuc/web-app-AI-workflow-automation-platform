@@ -25,12 +25,12 @@ worker:
 	go run ./cmd/worker
 
 web:
-	cd web && npm run dev
+	cd web && pnpm dev
 
 build:
 	go build -o bin/api ./cmd/api
 	go build -o bin/worker ./cmd/worker
-	cd web && npm run build
+	cd web && pnpm build
 
 test: test-go test-web
 
@@ -38,11 +38,11 @@ test-go:
 	go test ./...
 
 test-web:
-	cd web && npm run typecheck && npm test
+	cd web && pnpm typecheck && pnpm test
 
 # Needs Postgres, the API and the worker already running.
 test-e2e:
-	cd web && npm run test:e2e
+	cd web && pnpm test:e2e
 
 tidy:
 	go mod tidy
